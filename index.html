@@ -401,6 +401,11 @@ display:none;align-items:center;justify-content:center;z-index:1000;}
     color: #7f8c8d;
 }
 
+.rater-status-then-pending-now-Completed {
+    background: #ebedef;
+    color: #760fe5;
+}
+
 .rater-view-all {
     text-align: center;
     margin-top: 10px;
@@ -594,7 +599,7 @@ display:none;align-items:center;justify-content:center;z-index:1000;}
 <script>
 // ---------------- DATA ----------------
 const data = [
-    {Segment:"Health",Product:"Health Insurance",Description:"Working correctlyyy.",Status:"YES",Affinity:true},
+    {Segment:"Health",Product:"Health Insurance",Description:"Working correctly.",Status:"YES",Affinity:true},
     {Segment:"Health",Product:"Super Top Up",Description:"Working correctly.",Status:"YES",Affinity:true},
     {Segment:"Health",Product:"Hospicash",Description:"Working correctly.",Status:"YES",Affinity:true},
     {Segment:"Health",Product:"Group Critical Illness",Description:"Working correctly.",Status:"YES",Affinity:true},
@@ -644,8 +649,7 @@ const data = [
 // Available dates between Oct 29 - Nov 10, 2025 (excluding Nov 2 and Nov 9)
 const availableDates = [
     '2025-10-29', '2025-10-30', '2025-10-31',
-    '2025-11-01', '2025-11-03', '2025-11-04', 
-    '2025-11-05', '2025-11-06', '2025-11-07'
+    '2025-11-01', '2025-11-03'
 ];
 
 // Function to get a random date from available dates
@@ -684,7 +688,7 @@ const raterData = {
                 description: "When different rater values are set for different age groups, the quote page still shows the same premium and coverage for all ages.",
                 quote: "https://prnt.sc/cUHuEnoCKaMh",
                 certificate: "https://prnt.sc/C3kC8APfGhdQ",
-                status: "in-progress",
+                status: "then-pending-now-Completed",
                 completionDate: getRandomDate()
             },
             {
@@ -1238,6 +1242,42 @@ const raterData = {
             }
         ]
     },
+    "Topup": {
+    id: "topup",
+    name: "Topup Rater",
+    combinations: [
+        {
+            name: "Combination 1",
+            formula: "(premium + age)",
+            description: "System displaying same premium amount for different age selection",
+            rater: "https://prnt.sc/YS_OWAlP2dOZ",
+            quote: "https://prnt.sc/vnkcyjgqZI_I",
+            certificate: "https://prnt.sc/7uB6TUUKSB8s",
+            status: "in-progress",
+            completionDate: getRandomDate()
+        },
+        {
+            name: "Combination 2",
+            formula: "(premium + gender)",
+            description: "System displaying same premium amount for different gender selection",
+            rater: "https://prnt.sc/mD4jpBYF0fVH",
+            quote: "https://prnt.sc/tdY0tNP8rr31",
+            certificate: "https://prnt.sc/7uB6TUUKSB8s",
+            status: "in-progress",
+            completionDate: getRandomDate()
+        },
+        {
+            name: "Combination 3",
+            formula: "(premium + basic fields)",
+            description: "Standard premium calculation with basic fields",
+            rater: "https://prnt.sc/GLpX4msLs4Au",
+            quote: "https://prnt.sc/MlzC4L0xp4XM",
+            certificate: "https://prnt.sc/hAPBB7TiG-rT",
+            status: "completed",
+            completionDate: getRandomDate()
+        }
+    ]
+},
     "Wellness": {
         id: "wellness",
         name: "Wellness Rater",
