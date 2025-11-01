@@ -386,7 +386,7 @@ display:none;align-items:center;justify-content:center;z-index:1000;}
     color: #27ae60;
 }
 
-.rater-status-in-progress {
+.rater-status-not-required {
     background: #fdebd0;
     color: #f39c12;
 }
@@ -697,7 +697,7 @@ const raterData = {
                 description: "Not required",
                 quote: "https://prnt.sc/IESJkZkXYu76",
                 certificate: "https://prnt.sc/xqJyGUtmt7Bo",
-                status: "Not required",
+                status: "not-required",
                 completionDate: getRandomDate()
             },
             {
@@ -706,7 +706,7 @@ const raterData = {
                 description: "When different rater values are set based on gender and period, the quote page still shows the same premium and coverage for all gender and period combinations.",
                 quote: "https://prnt.sc/0vrzpHQ3kPqH",
                 certificate: "N/A",
-                status: "Not required",
+                status: "not-required",
                 completionDate: getRandomDate()
             },
             {
@@ -733,7 +733,7 @@ const raterData = {
                 description: "N/A",
                 quote: "https://prnt.sc/qLEo_yyGayxC",
                 certificate: "N/A",
-                status: "not-reuired",
+                status: "not-required",
                 completionDate: getRandomDate()
             },
             {
@@ -826,7 +826,7 @@ const raterData = {
                 description: "System displaying internal server error when select Source country and destination country",
                 quote: "N/A",
                 certificate: "N/A",
-                status: "in-progress",
+                status: "not-required",
                 completionDate: getRandomDate()
             },
             {
@@ -844,7 +844,7 @@ const raterData = {
                 description: "N/A",
                 quote: "https://prnt.sc/3hDiYWQ1q3NT",
                 certificate: "https://prnt.sc/By6kHd6Ru6s3",
-                status: "pending",
+                status: "then-pending-now-Completed",
                 completionDate: getRandomDate()
             }
         ]
@@ -877,7 +877,7 @@ const raterData = {
                 description: "N/A",
                 quote: "https://prnt.sc/4tONM39F4Jqc",
                 certificate: "https://prnt.sc/OgjPjyNCF0Vv",
-                status: "in-progress",
+                status: "PENDING",
                 completionDate: getRandomDate()
             },
             {
@@ -895,7 +895,7 @@ const raterData = {
                 description: "N/A",
                 quote: "https://prnt.sc/3sqMFZwyxZ-2",
                 certificate: "https://prnt.sc/7U_JpQ1Piqxf",
-                status: "not-started",
+                status: "PENDING",
                 completionDate: getRandomDate()
             }
         ]
@@ -928,7 +928,7 @@ const raterData = {
                 description: "N/A",
                 quote: "https://prnt.sc/g4K1UNiUNBoo",
                 certificate: "https://prnt.sc/Hn7Dxdh___aJ",
-                status: "in-progress",
+                status: "then-pending-now-Completed",
                 completionDate: getRandomDate()
             },
             {
@@ -937,7 +937,7 @@ const raterData = {
                 description: "N/A",
                 quote: "https://prnt.sc/vo12S4yYJHxM",
                 certificate: "https://prnt.sc/pmK8BG-cZCb4",
-                status: "pending",
+                status: "not-required",
                 completionDate: getRandomDate()
             },
             {
@@ -955,7 +955,7 @@ const raterData = {
                 description: "N/A",
                 quote: "https://prnt.sc/ZlvBQ9Ibln7r",
                 certificate: "https://prnt.sc/YqJkcEhD6SpQ",
-                status: "not-started",
+                status: "then-pending-now-Completed",
                 completionDate: getRandomDate()
             },
             {
@@ -963,8 +963,8 @@ const raterData = {
                 formula: "(premium rate + minimum & maximum value, minimum & maximum age, smoker, adult count)",
                 description: "N/A",
                 quote: "N/A",
-                certificate: "https://prnt.sc/0iyUQdVoWaFd",
-                status: "not-started",
+                certificate: "N/A",
+                status: "then-pending-now-Completed",
                 completionDate: getRandomDate()
             },
             {
@@ -1006,7 +1006,7 @@ const raterData = {
                 description: "N/A",
                 quote: "https://prnt.sc/KCqxg3xHJSuQ",
                 certificate: "https://prnt.sc/-wcKHWMIklHM",
-                status: "in-progress",
+                status: "then-pending-now-Completed",
                 completionDate: getRandomDate()
             },
             {
@@ -1117,7 +1117,7 @@ const raterData = {
                 description: "System displaying same premium amount for different species",
                 quote: "https://prnt.sc/wxU73IcIDvsr",
                 certificate: "https://prnt.sc/wM13KGGGypFO",
-                status: "in-progress",
+                status: "then-pending-now-Completed",
                 completionDate: getRandomDate()
             },
             {
@@ -1135,7 +1135,7 @@ const raterData = {
                 description: "N/A",
                 quote: "https://prnt.sc/AhYxpqwzrLPd",
                 certificate: "https://prnt.sc/IQtXBd1_fxED",
-                status: "pending",
+                status: "then-pending-now-Completed",
                 completionDate: getRandomDate()
             }
         ]
@@ -1177,7 +1177,7 @@ const raterData = {
                 description: "Internal Server Error for flat age selection",
                 quote: "N/A",
                 certificate: "N/A",
-                status: "pending",
+                status: "then-pending-now-Completed",
                 completionDate: getRandomDate()
             },
             {
@@ -1210,10 +1210,10 @@ const raterData = {
             {
                 name: "Combination 8",
                 formula: "(premium + cover, period)",
-                description: "When different rater values are set for each period, the system calculates the wrong premium for the 2nd year.",
+                description: "period is declare in product thus not required.",
                 quote: "https://prnt.sc/-JnH5bLwnwQo",
                 certificate: "N/A",
-                status: "pending",
+                status: "not-required",
                 completionDate: getRandomDate()
             },
             {
@@ -1222,7 +1222,7 @@ const raterData = {
                 description: "When different rater values are set by gender and period, the quote page still shows the same premium and coverage for all combinations.",
                 quote: "https://prnt.sc/RMam_dAZTX20",
                 certificate: "N/A",
-                status: "pending",
+                status: "not-required",
                 completionDate: getRandomDate()
             }
         ]
@@ -1337,7 +1337,73 @@ const raterData = {
                 completionDate: getRandomDate()
             }
         ]
-    }
+    },
+    "Marine": {
+    id: "marine",
+    name: "Marine Rater",
+    combinations: [
+        {
+            name: "Combination 1",
+            formula: "(premium + commodity type)",
+            description: "System displaying premium calculation",
+            rater: "https://prnt.sc/lXSHvat28MkL",
+            quote: "https://prnt.sc/q2vfN3O9ieNo",
+            certificate: "https://prnt.sc/7bSGdVb_BhXK",
+            status: "completed",
+            completionDate: getRandomDate()
+        },
+        {
+            name: "Combination 2",
+            formula: "(premium + voyage type)",
+            description: "System displaying premium calculation",
+            rater: "https://prnt.sc/qtudzB7zKF_f",
+            quote: "https://prnt.sc/wK2N369YFW_W",
+            certificate: "https://prnt.sc/K6rJs4pR7HGX",
+            status: "completed",
+            completionDate: getRandomDate()
+        },
+        {
+            name: "Combination 3",
+            formula: "(premium + conveyance type)",
+            description: "System displaying premium calculation",
+            rater: "https://prnt.sc/5BNhkX2veZiU",
+            quote: "https://prnt.sc/A2A4QgbkzDSC",
+            certificate: "https://prnt.sc/WxKMP23LCDWh",
+            status: "completed",
+            completionDate: getRandomDate()
+        },
+        {
+            name: "Combination 4",
+            formula: "(premium + package type)",
+            description: "Error message displaying for commodity type field",
+            rater: "https://prnt.sc/t0zblvdeX793",
+            quote: "N/A",
+            certificate: "N/A",
+            status: "failed",
+            completionDate: getRandomDate()
+        },
+        {
+            name: "Combination 5",
+            formula: "(premium + sum insured)",
+            description: "System displaying premium calculation",
+            rater: "https://prnt.sc/hV_ZcvwzoNmi",
+            quote: "https://prnt.sc/qqlS49pEjTIt",
+            certificate: "https://prnt.sc/TfX-oFo6NcQg",
+            status: "completed",
+            completionDate: getRandomDate()
+        },
+        {
+            name: "Combination 6",
+            formula: "(premium + transit type)",
+            description: "Quote page not displaying",
+            rater: "https://prnt.sc/C0zyKS7x4jt9",
+            quote: "N/A",
+            certificate: "N/A",
+            status: "pending",
+            completionDate: getRandomDate()
+        }
+    ]
+}
     // Note: Topup segment is not included in rater data as requested
 };
 
