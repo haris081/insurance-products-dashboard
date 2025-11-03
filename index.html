@@ -53,6 +53,7 @@ h4 {color:#7b1fa2;margin-bottom:10px;}
 .status {display:inline-block;padding:5px 15px;border-radius:20px;font-weight:bold;margin-left:5px;transition: all 0.3s ease;}
 .status.YES {background-color:#43a047;color:white;}
 .status.NO {background-color:#e53935;color:white;}
+.status.PENDING {background-color:#ff9800;color:white;}
 
 .product-grid {
     display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:25px;margin-top:50px;
@@ -264,9 +265,25 @@ display:none;align-items:center;justify-content:center;z-index:1000;}
     color: #7f8c8d;
 }
 
-.rater-cards-container {
+.rater-filter-controls {
+    display: flex;
+    gap: 15px;
+    flex-wrap: wrap;
+}
 
+.rater-filter-select {
+    padding: 10px 15px;
+    border: 1px solid #ddd;
+    border-radius: 5px;
+    background: white;
+    font-size: 0.9rem;
+    min-width: 150px;
+}
+
+.rater-cards-container {
+    display: grid;
     grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
+    gap: 25px;
     margin-bottom: 30px;
 }
 
@@ -401,9 +418,19 @@ display:none;align-items:center;justify-content:center;z-index:1000;}
     color: #7f8c8d;
 }
 
-.rater-status-then-pending-now-Completed {
-    background: #ebedef;
-    color: #760fe5;
+.rater-status-then-pending-now-completed {
+    background: #e8f4fd;
+    color: #3498db;
+}
+
+.rater-status-in-progress {
+    background: #fff3cd;
+    color: #856404;
+}
+
+.rater-status-failed {
+    background: #f8d7da;
+    color: #721c24;
 }
 
 .rater-view-all {
@@ -464,6 +491,66 @@ display:none;align-items:center;justify-content:center;z-index:1000;}
     color: #512da8;
     margin-bottom: 10px;
 }
+
+/* Rater Summary Stats */
+.rater-summary-stats {
+    display: flex;
+    justify-content: center;
+    gap: 15px;
+    margin-bottom: 20px;
+    flex-wrap: wrap;
+}
+
+.rater-summary-stat {
+    background: white;
+    padding: 10px 15px;
+    border-radius: 8px;
+    text-align: center;
+    box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+    min-width: 120px;
+}
+
+.rater-summary-number {
+    font-size: 1.5rem;
+    font-weight: bold;
+    margin-bottom: 5px;
+}
+
+.rater-summary-label {
+    font-size: 0.8rem;
+    color: #666;
+}
+
+/* Progress Bar */
+.progress-bar {
+    height: 6px;
+    background: #ecf0f1;
+    border-radius: 3px;
+    margin-top: 5px;
+    overflow: hidden;
+}
+
+.progress-fill {
+    height: 100%;
+    border-radius: 3px;
+    transition: width 0.5s ease;
+}
+
+.progress-completed {
+    background: #27ae60;
+}
+
+.progress-pending {
+    background: #e74c3c;
+}
+
+.progress-in-progress {
+    background: #f39c12;
+}
+
+.progress-not-started {
+    background: #7f8c8d;
+}
 </style>
 </head>
 <body>
@@ -487,6 +574,10 @@ display:none;align-items:center;justify-content:center;z-index:1000;}
             <div class="segment-stat-number" id="not-working-segments">0</div>
             <div class="segment-stat-label">Not Working Segments</div>
         </div>
+        <div class="segment-stat-box">
+            <div class="segment-stat-number" id="pending-segments">0</div>
+            <div class="segment-stat-label">Pending Segments</div>
+        </div>
     </div>
 
     <h2 style="text-align:center; color:#512da8; margin-bottom: 20px;">Product Statistics</h2>
@@ -502,6 +593,10 @@ display:none;align-items:center;justify-content:center;z-index:1000;}
         <div class="stat-box">
             <div class="stat-number" id="not-working-products">0</div>
             <div class="stat-label">Not Working</div>
+        </div>
+        <div class="stat-box">
+            <div class="stat-number" id="pending-products">0</div>
+            <div class="stat-label">Pending</div>
         </div>
     </div>
 
@@ -525,6 +620,7 @@ display:none;align-items:center;justify-content:center;z-index:1000;}
                     <option value="ALL">All</option>
                     <option value="YES">YES</option>
                     <option value="NO">NO</option>
+                    <option value="PENDING">PENDING</option>
                 </select>
             </div>
         </div>
@@ -545,6 +641,7 @@ display:none;align-items:center;justify-content:center;z-index:1000;}
                     <option value="ALL">All</option>
                     <option value="YES">YES</option>
                     <option value="NO">NO</option>
+                    <option value="PENDING">PENDING</option>
                 </select>
             </div>
         </div>
@@ -575,10 +672,31 @@ display:none;align-items:center;justify-content:center;z-index:1000;}
             <p class="subtitle" id="rater-subtitle">Manage and view all rater combinations for this segment</p>
         </div>
         
+        <div class="rater-summary-stats" id="rater-summary-stats">
+            <!-- Rater summary stats will be loaded here -->
+        </div>
+        
         <div class="rater-controls">
             <div class="rater-search-box">
                 <i class="fas fa-search"></i>
                 <input type="text" id="rater-searchInput" placeholder="Search combinations...">
+            </div>
+            <div class="rater-filter-controls">
+                <select id="rater-status-filter" class="rater-filter-select">
+                    <option value="ALL">All Statuses</option>
+                    <option value="completed">Completed</option>
+                    <option value="pending">Pending</option>
+                    <option value="in-progress">In Progress</option>
+                    <option value="not-started">Not Started</option>
+                    <option value="not-required">Not Required</option>
+                    <option value="then-pending-now-completed">Then Pending Now Completed</option>
+                    <option value="failed">Failed</option>
+                </select>
+                <select id="rater-sort-by" class="rater-filter-select">
+                    <option value="name">Sort by Name</option>
+                    <option value="status">Sort by Status</option>
+                    <option value="date">Sort by Date</option>
+                </select>
             </div>
         </div>
         
@@ -599,7 +717,7 @@ display:none;align-items:center;justify-content:center;z-index:1000;}
 <script>
 // ---------------- DATA ----------------
 const data = [
-    {Segment:"Health",Product:"Health Insuranceee",Description:"Working correctly.",Status:"YES",Affinity:true},
+    {Segment:"Health",Product:"Health Insurance",Description:"Working correctly.",Status:"YES",Affinity:true},
     {Segment:"Health",Product:"Super Top Up",Description:"Working correctly.",Status:"YES",Affinity:true},
     {Segment:"Health",Product:"Hospicash",Description:"Working correctly.",Status:"YES",Affinity:true},
     {Segment:"Health",Product:"Group Critical Illness",Description:"Working correctly.",Status:"YES",Affinity:true},
@@ -630,7 +748,7 @@ const data = [
     {Segment:"Marine",Product:"Marine Insurance",Description:"Working correctly",Status:"YES",Affinity:true},
     {Segment:"Marine",Product:"Marine Automobiles",Description:"Working correctly",Status:"YES",Affinity:true},
     {Segment:"Marine",Product:"Marine FMCG Commodities",Description:"Working correctly",Status:"YES",Affinity:true},
-    {Segment:"Travel",Product:"Travel Insurance",Description:"The coverage amount is not displaying correctly. Under the Product Module, the discount column is missing",Status:"YES",Affinity:true},
+    {Segment:"Travel",Product:"Travel Insurance",Description:"The coverage amount is not displaying correctly. Under the Product Module, the discount column is missing",Status:"PENDING",Affinity:true},
     {Segment:"Travel",Product:"Student Travel Insurance",Description:"Working Correctly.",Status:"YES",Affinity:true},
     {Segment:"Travel",Product:"Senior Citizen Travel Insurance",Description:"Working correctly.",Status:"YES",Affinity:true},
     {Segment:"Life",Product:"Term Insurance",Description:"Working correctly.",Status:"YES",Affinity:true},
@@ -645,7 +763,7 @@ const data = [
     {Segment:"Topup",Product:"Topup Product",Description:"Working correctly",Status:"YES",Affinity:true}
    ];
 
-// ---------------- RATER DATA ----------------ssss
+// ---------------- RATER DATA ----------------
 // Available dates between Oct 29 - Nov 10, 2025 (excluding Nov 2 and Nov 9)
 const availableDates = [
     '2025-10-29', '2025-10-30', '2025-10-31',
@@ -679,7 +797,7 @@ const raterData = {
                 description: "N/A",
                 quote: "https://prnt.sc/Yx4gcPYbLL1W",
                 certificate: "https://prnt.sc/yhgVO_l1b3HZ",
-                status: "then-pending-now-Completed",
+                status: "then-pending-now-completed",
                 completionDate: getRandomDate()
             },
             {
@@ -688,7 +806,7 @@ const raterData = {
                 description: "N/A",
                 quote: "https://prnt.sc/cUHuEnoCKaMh",
                 certificate: "https://prnt.sc/C3kC8APfGhdQ",
-                status: "then-pending-now-Completed",
+                status: "then-pending-now-completed",
                 completionDate: getRandomDate()
             },
             {
@@ -706,7 +824,7 @@ const raterData = {
                 description: "When different rater values are set based on gender and period, the quote page still shows the same premium and coverage for all gender and period combinations.",
                 quote: "https://prnt.sc/0vrzpHQ3kPqH",
                 certificate: "N/A",
-                status: "not-required",
+                status: "pending",
                 completionDate: getRandomDate()
             },
             {
@@ -724,7 +842,7 @@ const raterData = {
                 description: "N/A",
                 quote: "https://prnt.sc/wy0caq79thvp",
                 certificate: "https://prnt.sc/GxUUmRKH9CNF",
-                status: "then-pending-now-Completed",
+                status: "then-pending-now-completed",
                 completionDate: getRandomDate()
             },
             {
@@ -733,7 +851,7 @@ const raterData = {
                 description: "N/A",
                 quote: "https://prnt.sc/qLEo_yyGayxC",
                 certificate: "N/A",
-                status: "not-required",
+                status: "pending",
                 completionDate: getRandomDate()
             },
             {
@@ -775,7 +893,7 @@ const raterData = {
                 description: "N/A",
                 quote: "https://prnt.sc/d9TMl6opRPHv",
                 certificate: "https://prnt.sc/5SU1numHy3-7",
-                status: "then-pending-now-Completed",
+                status: "then-pending-now-completed",
                 completionDate: getRandomDate()
             },
             {
@@ -784,7 +902,7 @@ const raterData = {
                 description: "N/A",
                 quote: "https://prnt.sc/m72WS-fTHuLA",
                 certificate: "https://prnt.sc/bcr72VsVCQ-Q",
-                status: "then-pending-now-Completed",
+                status: "then-pending-now-completed",
                 completionDate: getRandomDate()
             },
             {
@@ -793,7 +911,7 @@ const raterData = {
                 description: "N/A",
                 quote: "https://prnt.sc/CXE5chTcpf1w",
                 certificate: "https://prnt.sc/C-70LljBJDh9",
-                status: "then-pending-now-Completed",
+                status: "then-pending-now-completed",
                 completionDate: getRandomDate()
             }
         ]
@@ -826,7 +944,7 @@ const raterData = {
                 description: "System displaying internal server error when select Source country and destination country",
                 quote: "N/A",
                 certificate: "N/A",
-                status: "not-required",
+                status: "pending",
                 completionDate: getRandomDate()
             },
             {
@@ -844,7 +962,7 @@ const raterData = {
                 description: "N/A",
                 quote: "https://prnt.sc/3hDiYWQ1q3NT",
                 certificate: "https://prnt.sc/By6kHd6Ru6s3",
-                status: "then-pending-now-Completed",
+                status: "then-pending-now-completed",
                 completionDate: getRandomDate()
             }
         ]
@@ -877,7 +995,7 @@ const raterData = {
                 description: "N/A",
                 quote: "https://prnt.sc/4tONM39F4Jqc",
                 certificate: "https://prnt.sc/OgjPjyNCF0Vv",
-                status: "PENDING",
+                status: "pending",
                 completionDate: getRandomDate()
             },
             {
@@ -895,7 +1013,7 @@ const raterData = {
                 description: "N/A",
                 quote: "https://prnt.sc/3sqMFZwyxZ-2",
                 certificate: "https://prnt.sc/7U_JpQ1Piqxf",
-                status: "PENDING",
+                status: "pending",
                 completionDate: getRandomDate()
             }
         ]
@@ -928,7 +1046,7 @@ const raterData = {
                 description: "N/A",
                 quote: "https://prnt.sc/g4K1UNiUNBoo",
                 certificate: "https://prnt.sc/Hn7Dxdh___aJ",
-                status: "then-pending-now-Completed",
+                status: "then-pending-now-completed",
                 completionDate: getRandomDate()
             },
             {
@@ -955,7 +1073,7 @@ const raterData = {
                 description: "N/A",
                 quote: "https://prnt.sc/ZlvBQ9Ibln7r",
                 certificate: "https://prnt.sc/YqJkcEhD6SpQ",
-                status: "then-pending-now-Completed",
+                status: "then-pending-now-completed",
                 completionDate: getRandomDate()
             },
             {
@@ -964,7 +1082,7 @@ const raterData = {
                 description: "N/A",
                 quote: "N/A",
                 certificate: "N/A",
-                status: "then-pending-now-Completed",
+                status: "pending",
                 completionDate: getRandomDate()
             },
             {
@@ -1006,7 +1124,7 @@ const raterData = {
                 description: "N/A",
                 quote: "https://prnt.sc/KCqxg3xHJSuQ",
                 certificate: "https://prnt.sc/-wcKHWMIklHM",
-                status: "then-pending-now-Completed",
+                status: "then-pending-now-completed",
                 completionDate: getRandomDate()
             },
             {
@@ -1057,7 +1175,7 @@ const raterData = {
                 description: "Showing internal server error",
                 quote: "N/A",
                 certificate: "N/A",
-                status: "in-progress",
+                status: "pending",
                 completionDate: getRandomDate()
             },
             {
@@ -1117,7 +1235,7 @@ const raterData = {
                 description: "System displaying same premium amount for different species",
                 quote: "https://prnt.sc/wxU73IcIDvsr",
                 certificate: "https://prnt.sc/wM13KGGGypFO",
-                status: "then-pending-now-Completed",
+                status: "then-pending-now-completed",
                 completionDate: getRandomDate()
             },
             {
@@ -1135,7 +1253,7 @@ const raterData = {
                 description: "N/A",
                 quote: "https://prnt.sc/AhYxpqwzrLPd",
                 certificate: "https://prnt.sc/IQtXBd1_fxED",
-                status: "then-pending-now-Completed",
+                status: "then-pending-now-completed",
                 completionDate: getRandomDate()
             }
         ]
@@ -1168,7 +1286,7 @@ const raterData = {
                 description: "When users enter separate rater values for male and female, the quote page still shows the same premium and coverage for both genders.",
                 quote: "https://prnt.sc/YTMdQV2gMB6_",
                 certificate: "N/A",
-                status: "in-progress",
+                status: "pending",
                 completionDate: getRandomDate()
             },
             {
@@ -1177,7 +1295,7 @@ const raterData = {
                 description: "Internal Server Error for flat age selection",
                 quote: "N/A",
                 certificate: "N/A",
-                status: "then-pending-now-Completed",
+                status: "pending",
                 completionDate: getRandomDate()
             },
             {
@@ -1186,7 +1304,7 @@ const raterData = {
                 description: "When different rater values are set for smoker and non-smoker, the quote page still shows the same premium for both.",
                 quote: "https://prnt.sc/H8SxtjYHk3yz",
                 certificate: "N/A",
-                status: "in-progress",
+                status: "pending",
                 completionDate: getRandomDate()
             },
             {
@@ -1246,7 +1364,7 @@ const raterData = {
                 description: "Error message displaying",
                 quote: "https://prnt.sc/UUOcKxPnQvu0",
                 certificate: "https://prnt.sc/p6MOcBw5qCqq",
-                status: "in-progress",
+                status: "pending",
                 completionDate: getRandomDate()
             },
             {
@@ -1425,15 +1543,20 @@ const raterSegmentName = document.getElementById("rater-segment-name");
 const raterSubtitle = document.getElementById("rater-subtitle");
 const raterContent = document.getElementById("rater-content");
 const raterSearchInput = document.getElementById("rater-searchInput");
+const raterStatusFilter = document.getElementById("rater-status-filter");
+const raterSortBy = document.getElementById("rater-sort-by");
+const raterSummaryStats = document.getElementById("rater-summary-stats");
 
 // Stats elements
 const totalSegmentsEl = document.getElementById("total-segments");
 const workingSegmentsEl = document.getElementById("working-segments");
 const notWorkingSegmentsEl = document.getElementById("not-working-segments");
+const pendingSegmentsEl = document.getElementById("pending-segments");
 
 const totalProductsEl = document.getElementById("total-products");
 const workingProductsEl = document.getElementById("working-products");
 const notWorkingProductsEl = document.getElementById("not-working-products");
+const pendingProductsEl = document.getElementById("pending-products");
 
 // Current filter state
 let currentFilterType = "segment";
@@ -1447,10 +1570,12 @@ function updateStats() {
     const total = data.length;
     const working = data.filter(item => item.Status === "YES").length;
     const notWorking = data.filter(item => item.Status === "NO").length;
+    const pending = data.filter(item => item.Status === "PENDING").length;
     
     totalProductsEl.textContent = total;
     workingProductsEl.textContent = working;
     notWorkingProductsEl.textContent = notWorking;
+    pendingProductsEl.textContent = pending;
     
     // Segment stats
     const segments = [...new Set(data.map(item => item.Segment))];
@@ -1468,9 +1593,16 @@ function updateStats() {
         return segmentProducts.every(product => product.Status === "NO");
     }).length;
     
+    // Calculate pending segments (at least one product pending)
+    const pendingSegments = segments.filter(segment => {
+        const segmentProducts = data.filter(item => item.Segment === segment);
+        return segmentProducts.some(product => product.Status === "PENDING");
+    }).length;
+    
     totalSegmentsEl.textContent = totalSegments;
     workingSegmentsEl.textContent = workingSegments;
     notWorkingSegmentsEl.textContent = notWorkingSegments;
+    pendingSegmentsEl.textContent = pendingSegments;
 }
 
 // Populate segments
@@ -1500,6 +1632,7 @@ function renderSegmentCards() {
         const totalProducts = segmentData.length;
         const workingProducts = segmentData.filter(item => item.Status === "YES").length;
         const notWorkingProducts = segmentData.filter(item => item.Status === "NO").length;
+        const pendingProducts = segmentData.filter(item => item.Status === "PENDING").length;
         
         const segmentCard = document.createElement("div");
         segmentCard.className = "segment-card";
@@ -1517,6 +1650,10 @@ function renderSegmentCards() {
                 <div class="segment-stat">
                     <div class="segment-stat-value" style="color: #e53935;">${notWorkingProducts}</div>
                     <div class="segment-stat-label">Not Working</div>
+                </div>
+                <div class="segment-stat">
+                    <div class="segment-stat-value" style="color: #ff9800;">${pendingProducts}</div>
+                    <div class="segment-stat-label">Pending</div>
                 </div>
             </div>
         `;
@@ -1550,29 +1687,100 @@ function showRaterForSegment(segment) {
 
 // Render rater content
 function renderRaterContent(raterCategory) {
+    // Calculate summary stats
+    const totalCombinations = raterCategory.combinations.length;
+    const completedCombinations = raterCategory.combinations.filter(c => c.status === 'completed').length;
+    const pendingCombinations = raterCategory.combinations.filter(c => c.status === 'pending').length;
+    const inProgressCombinations = raterCategory.combinations.filter(c => c.status === 'in-progress').length;
+    const notStartedCombinations = raterCategory.combinations.filter(c => c.status === 'not-started').length;
+    
+    // Render summary stats
+    raterSummaryStats.innerHTML = `
+        <div class="rater-summary-stat">
+            <div class="rater-summary-number">${totalCombinations}</div>
+            <div class="rater-summary-label">Total</div>
+        </div>
+        <div class="rater-summary-stat">
+            <div class="rater-summary-number" style="color: #27ae60;">${completedCombinations}</div>
+            <div class="rater-summary-label">Completed</div>
+        </div>
+        <div class="rater-summary-stat">
+            <div class="rater-summary-number" style="color: #e74c3c;">${pendingCombinations}</div>
+            <div class="rater-summary-label">Pending</div>
+        </div>
+        <div class="rater-summary-stat">
+            <div class="rater-summary-number" style="color: #f39c12;">${inProgressCombinations}</div>
+            <div class="rater-summary-label">In Progress</div>
+        </div>
+        <div class="rater-summary-stat">
+            <div class="rater-summary-number" style="color: #7f8c8d;">${notStartedCombinations}</div>
+            <div class="rater-summary-label">Not Started</div>
+        </div>
+        <div class="rater-summary-stat" style="flex-grow: 1; min-width: 200px;">
+            <div class="rater-summary-label">Completion Progress</div>
+            <div class="progress-bar">
+                <div class="progress-fill progress-completed" style="width: ${(completedCombinations / totalCombinations) * 100}%"></div>
+            </div>
+        </div>
+    `;
+    
+    // Apply filters and sorting
+    let filteredCombinations = [...raterCategory.combinations];
+    
+    // Status filter
+    const statusFilter = raterStatusFilter.value;
+    if (statusFilter !== 'ALL') {
+        filteredCombinations = filteredCombinations.filter(combo => combo.status === statusFilter);
+    }
+    
+    // Search filter
+    const searchTerm = raterSearchInput.value.toLowerCase();
+    if (searchTerm) {
+        filteredCombinations = filteredCombinations.filter(combo => 
+            combo.name.toLowerCase().includes(searchTerm) || 
+            combo.formula.toLowerCase().includes(searchTerm) ||
+            combo.description.toLowerCase().includes(searchTerm)
+        );
+    }
+    
+    // Sort
+    const sortBy = raterSortBy.value;
+    if (sortBy === 'name') {
+        filteredCombinations.sort((a, b) => a.name.localeCompare(b.name));
+    } else if (sortBy === 'status') {
+        filteredCombinations.sort((a, b) => a.status.localeCompare(b.status));
+    } else if (sortBy === 'date') {
+        filteredCombinations.sort((a, b) => new Date(a.completionDate) - new Date(b.completionDate));
+    }
+    
+    // Render combinations
     raterContent.innerHTML = `
         <div class="rater-cards-container">
             <div class="rater-category-card">
                 <div class="rater-card-header">
                     <h3>${raterCategory.name}</h3>
-                    <span class="rater-combinations-count">${raterCategory.combinations.length} combinations</span>
+                    <span class="rater-combinations-count">${filteredCombinations.length} combinations</span>
                 </div>
                 <div class="rater-card-body">
-                    ${raterCategory.combinations.map(combo => `
-                        <div class="rater-combination-item">
-                            <div class="rater-combination-name">
-                                <span>${combo.name}</span>
-                                <span class="rater-status-badge rater-status-${combo.status}">${combo.status.replace('-', ' ')}</span>
+                    ${filteredCombinations.length > 0 ? 
+                        filteredCombinations.map(combo => `
+                            <div class="rater-combination-item">
+                                <div class="rater-combination-name">
+                                    <span>${combo.name}</span>
+                                    <span class="rater-status-badge rater-status-${combo.status}">${combo.status.replace(/-/g, ' ')}</span>
+                                </div>
+                                <div class="rater-combination-formula">${combo.formula}</div>
+                                <div class="rater-combination-description">${combo.description}</div>
+                                <div class="rater-links">
+                                    ${combo.quote !== 'N/A' ? `<a href="${combo.quote}" target="_blank" class="rater-link"><i class="fas fa-external-link-alt"></i> Quote</a>` : '<span class="rater-link disabled">No Quote</span>'}
+                                    ${combo.certificate !== 'N/A' ? `<a href="${combo.certificate}" target="_blank" class="rater-link"><i class="fas fa-file-certificate"></i> Certificate</a>` : '<span class="rater-link disabled">No Certificate</span>'}
+                                    ${combo.rater ? `<a href="${combo.rater}" target="_blank" class="rater-link"><i class="fas fa-calculator"></i> Rater</a>` : ''}
+                                </div>
+                                <div class="rater-completion-date">Expected: ${formatDate(combo.completionDate)}</div>
                             </div>
-                            <div class="rater-combination-formula">${combo.formula}</div>
-                            <div class="rater-combination-description">${combo.description}</div>
-                            <div class="rater-links">
-                                ${combo.quote !== 'N/A' ? `<a href="${combo.quote}" target="_blank" class="rater-link"><i class="fas fa-external-link-alt"></i> Quote</a>` : '<span class="rater-link disabled">No Quote</span>'}
-                                ${combo.certificate !== 'N/A' ? `<a href="${combo.certificate}" target="_blank" class="rater-link"><i class="fas fa-file-certificate"></i> Certificate</a>` : '<span class="rater-link disabled">No Certificate</span>'}
-                            </div>
-                            <div class="rater-completion-date">Expected: ${formatDate(combo.completionDate)}</div>
-                        </div>
-                    `).join('')}
+                        `).join('') : 
+                        '<div class="no-results">No combinations match your filters</div>'
+                    }
                 </div>
             </div>
         </div>
@@ -1750,21 +1958,28 @@ statusProductSelect.addEventListener("change",()=>{
 });
 
 // Rater search functionality
-raterSearchInput.addEventListener("input", filterRaterContent);
+raterSearchInput.addEventListener("input", () => {
+    const currentSegmentName = raterSegmentName.textContent.replace(' Rater Combinations', '');
+    if (raterData[currentSegmentName]) {
+        renderRaterContent(raterData[currentSegmentName]);
+    }
+});
 
-function filterRaterContent() {
-    const searchTerm = raterSearchInput.value.toLowerCase();
-    const combinationItems = document.querySelectorAll('.rater-combination-item');
-    
-    combinationItems.forEach(item => {
-        const itemText = item.textContent.toLowerCase();
-        if (itemText.includes(searchTerm)) {
-            item.style.display = 'block';
-        } else {
-            item.style.display = 'none';
-        }
-    });
-}
+// Rater status filter
+raterStatusFilter.addEventListener("change", () => {
+    const currentSegmentName = raterSegmentName.textContent.replace(' Rater Combinations', '');
+    if (raterData[currentSegmentName]) {
+        renderRaterContent(raterData[currentSegmentName]);
+    }
+});
+
+// Rater sort by
+raterSortBy.addEventListener("change", () => {
+    const currentSegmentName = raterSegmentName.textContent.replace(' Rater Combinations', '');
+    if (raterData[currentSegmentName]) {
+        renderRaterContent(raterData[currentSegmentName]);
+    }
+});
 
 // Modal logic
 const modal=document.getElementById("modal");
