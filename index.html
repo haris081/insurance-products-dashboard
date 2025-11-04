@@ -225,22 +225,16 @@ display:none;align-items:center;justify-content:center;z-index:1000;}
 
 .rater-header {
     text-align: center;
-    margin-bottom: 20px;
-    padding: 15px;
+    margin-bottom: 20px; /* Reduced padding */
+    padding: 15px; /* Reduced padding */
     background: white;
     border-radius: 10px;
     box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
 }
 
-.rater-controls {
-    display: flex;
-    flex-direction: column;
-    gap: 15px;
-    margin-bottom: 20px;
-}
-
 .rater-search-box {
-    width: 100%;
+    flex: 1;
+    min-width: 300px;
     position: relative;
 }
 
@@ -266,7 +260,6 @@ display:none;align-items:center;justify-content:center;z-index:1000;}
 .rater-filter-controls {
     display: flex;
     gap: 15px;
-    justify-content: flex-start;
     flex-wrap: wrap;
 }
 
@@ -280,10 +273,13 @@ display:none;align-items:center;justify-content:center;z-index:1000;}
 }
 
 .rater-cards-container {
-    display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
-    gap: 25px;
+    display: block; /* Change from grid to block */
     margin-bottom: 30px;
+}
+
+.rater-category-card {
+    width: 100%; /* Make card take full width */
+    margin-bottom: 0; /* Remove bottom margin if any */
 }
 
 .rater-category-card {
@@ -573,6 +569,7 @@ display:none;align-items:center;justify-content:center;z-index:1000;}
             <div class="segment-stat-number" id="not-working-segments">0</div>
             <div class="segment-stat-label">Not Working Segments</div>
         </div>
+        <!-- Removed Pending Segments card -->
     </div>
 
     <h2 style="text-align:center; color:#512da8; margin-bottom: 20px;">Product Statistics</h2>
@@ -589,6 +586,7 @@ display:none;align-items:center;justify-content:center;z-index:1000;}
             <div class="stat-number" id="not-working-products">0</div>
             <div class="stat-label">Not Working</div>
         </div>
+        <!-- Removed Pending Products card -->
     </div>
 
     <div class="filter-toggle">
@@ -676,8 +674,12 @@ display:none;align-items:center;justify-content:center;z-index:1000;}
                 <select id="rater-status-filter" class="rater-filter-select">
                     <option value="ALL">All Statuses</option>
                     <option value="completed">Completed</option>
-                    <option value="not-required">Not Required</option>
                     <option value="pending">Pending</option>
+                    <option value="in-progress">In Progress</option>
+                    <option value="not-started">Not Started</option>
+                    <option value="not-required">Not Required</option>
+                    <option value="then-pending-now-completed">Then Pending Now Completed</option>
+                    <option value="failed">Failed</option>
                 </select>
                 <select id="rater-sort-by" class="rater-filter-select">
                     <option value="name">Sort by Name</option>
@@ -1509,6 +1511,7 @@ const raterData = {
         }
     ]
 }
+    // Note: Topup segment is not included in rater data as requested
 };
 
 // ---------------- DOM ELEMENTS ----------------
@@ -1657,15 +1660,15 @@ function showRaterForSegment(segment) {
 
 // Render rater content
 function renderRaterContent(raterCategory) {
-    // Calculate summary stats - treat "then-pending-now-completed" and "not-required" as completed
+    // Calculate summary stats - treat "then-pending-now-completed" as completed
     const totalCombinations = raterCategory.combinations.length;
     
-    // Count completed combinations (including "then-pending-now-completed" and "not-required")
-    const completedCombinations = raterCategory.combinations.filter(c => 
-        c.status === 'completed' || c.status === 'then-pending-now-completed' || c.status === 'not-required'
-    ).length;
+   // Count completed combinations (including "then-pending-now-completed" and "not-required")
+const completedCombinations = raterCategory.combinations.filter(c => 
+    c.status === 'completed' || c.status === 'then-pending-now-completed' || c.status === 'not-required'
+).length;
     
-    // Count pending combinations (excluding "then-pending-now-completed" and "not-required")
+    // Count pending combinations (excluding "then-pending-now-completed")
     const pendingCombinations = raterCategory.combinations.filter(c => 
         c.status === 'pending' || c.status === 'in-progress' || 
         c.status === 'not-started' || c.status === 'failed'
@@ -1696,20 +1699,16 @@ function renderRaterContent(raterCategory) {
     // Apply filters and sorting
     let filteredCombinations = [...raterCategory.combinations];
     
-    // Status filter - treat "then-pending-now-completed" and "not-required" as completed for filtering
+    // Status filter - treat "then-pending-now-completed" as completed for filtering
     const statusFilter = raterStatusFilter.value;
     if (statusFilter !== 'ALL') {
         if (statusFilter === 'completed') {
-            filteredCombinations = filteredCombinations.filter(combo => 
-                combo.status === 'completed' || combo.status === 'then-pending-now-completed' || combo.status === 'not-required'
-            );
-        } else if (statusFilter === 'not-required') {
-            filteredCombinations = filteredCombinations.filter(combo => combo.status === 'not-required');
-        } else {
-            filteredCombinations = filteredCombinations.filter(combo => combo.status === statusFilter);
-        }
+    filteredCombinations = filteredCombinations.filter(combo => 
+        combo.status === 'completed' || combo.status === 'then-pending-now-completed' || combo.status === 'not-required'
+    );
+}
     }
-    
+ 
     // Search filter
     const searchTerm = raterSearchInput.value.toLowerCase();
     if (searchTerm) {
