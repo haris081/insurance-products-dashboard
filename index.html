@@ -225,8 +225,8 @@ display:none;align-items:center;justify-content:center;z-index:1000;}
 
 .rater-header {
     text-align: center;
-    margin-bottom: 30px;
-    padding: 20px;
+    margin-bottom: 20px;
+    padding: 15px;
     background: white;
     border-radius: 10px;
     box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
@@ -234,15 +234,13 @@ display:none;align-items:center;justify-content:center;z-index:1000;}
 
 .rater-controls {
     display: flex;
-    justify-content: space-between;
-    margin-bottom: 20px;
-    flex-wrap: wrap;
+    flex-direction: column;
     gap: 15px;
+    margin-bottom: 20px;
 }
 
 .rater-search-box {
-    flex: 1;
-    min-width: 300px;
+    width: 100%;
     position: relative;
 }
 
@@ -268,6 +266,7 @@ display:none;align-items:center;justify-content:center;z-index:1000;}
 .rater-filter-controls {
     display: flex;
     gap: 15px;
+    justify-content: flex-start;
     flex-wrap: wrap;
 }
 
@@ -574,10 +573,6 @@ display:none;align-items:center;justify-content:center;z-index:1000;}
             <div class="segment-stat-number" id="not-working-segments">0</div>
             <div class="segment-stat-label">Not Working Segments</div>
         </div>
-        <div class="segment-stat-box">
-            <div class="segment-stat-number" id="pending-segments">0</div>
-            <div class="segment-stat-label">Pending Segments</div>
-        </div>
     </div>
 
     <h2 style="text-align:center; color:#512da8; margin-bottom: 20px;">Product Statistics</h2>
@@ -593,10 +588,6 @@ display:none;align-items:center;justify-content:center;z-index:1000;}
         <div class="stat-box">
             <div class="stat-number" id="not-working-products">0</div>
             <div class="stat-label">Not Working</div>
-        </div>
-        <div class="stat-box">
-            <div class="stat-number" id="pending-products">0</div>
-            <div class="stat-label">Pending</div>
         </div>
     </div>
 
@@ -685,12 +676,8 @@ display:none;align-items:center;justify-content:center;z-index:1000;}
                 <select id="rater-status-filter" class="rater-filter-select">
                     <option value="ALL">All Statuses</option>
                     <option value="completed">Completed</option>
-                    <option value="pending">Pending</option>
-                    <option value="in-progress">In Progress</option>
-                    <option value="not-started">Not Started</option>
                     <option value="not-required">Not Required</option>
-                    <option value="then-pending-now-completed">Then Pending Now Completed</option>
-                    <option value="failed">Failed</option>
+                    <option value="pending">Pending</option>
                 </select>
                 <select id="rater-sort-by" class="rater-filter-select">
                     <option value="name">Sort by Name</option>
@@ -1522,7 +1509,6 @@ const raterData = {
         }
     ]
 }
-    // Note: Topup segment is not included in rater data as requested
 };
 
 // ---------------- DOM ELEMENTS ----------------
@@ -1551,12 +1537,10 @@ const raterSummaryStats = document.getElementById("rater-summary-stats");
 const totalSegmentsEl = document.getElementById("total-segments");
 const workingSegmentsEl = document.getElementById("working-segments");
 const notWorkingSegmentsEl = document.getElementById("not-working-segments");
-const pendingSegmentsEl = document.getElementById("pending-segments");
 
 const totalProductsEl = document.getElementById("total-products");
 const workingProductsEl = document.getElementById("working-products");
 const notWorkingProductsEl = document.getElementById("not-working-products");
-const pendingProductsEl = document.getElementById("pending-products");
 
 // Current filter state
 let currentFilterType = "segment";
@@ -1570,12 +1554,10 @@ function updateStats() {
     const total = data.length;
     const working = data.filter(item => item.Status === "YES").length;
     const notWorking = data.filter(item => item.Status === "NO").length;
-    const pending = data.filter(item => item.Status === "PENDING").length;
     
     totalProductsEl.textContent = total;
     workingProductsEl.textContent = working;
     notWorkingProductsEl.textContent = notWorking;
-    pendingProductsEl.textContent = pending;
     
     // Segment stats
     const segments = [...new Set(data.map(item => item.Segment))];
@@ -1593,16 +1575,9 @@ function updateStats() {
         return segmentProducts.every(product => product.Status === "NO");
     }).length;
     
-    // Calculate pending segments (at least one product pending)
-    const pendingSegments = segments.filter(segment => {
-        const segmentProducts = data.filter(item => item.Segment === segment);
-        return segmentProducts.some(product => product.Status === "PENDING");
-    }).length;
-    
     totalSegmentsEl.textContent = totalSegments;
     workingSegmentsEl.textContent = workingSegments;
     notWorkingSegmentsEl.textContent = notWorkingSegments;
-    pendingSegmentsEl.textContent = pendingSegments;
 }
 
 // Populate segments
@@ -1632,7 +1607,6 @@ function renderSegmentCards() {
         const totalProducts = segmentData.length;
         const workingProducts = segmentData.filter(item => item.Status === "YES").length;
         const notWorkingProducts = segmentData.filter(item => item.Status === "NO").length;
-        const pendingProducts = segmentData.filter(item => item.Status === "PENDING").length;
         
         const segmentCard = document.createElement("div");
         segmentCard.className = "segment-card";
@@ -1650,10 +1624,6 @@ function renderSegmentCards() {
                 <div class="segment-stat">
                     <div class="segment-stat-value" style="color: #e53935;">${notWorkingProducts}</div>
                     <div class="segment-stat-label">Not Working</div>
-                </div>
-                <div class="segment-stat">
-                    <div class="segment-stat-value" style="color: #ff9800;">${pendingProducts}</div>
-                    <div class="segment-stat-label">Pending</div>
                 </div>
             </div>
         `;
@@ -1687,14 +1657,21 @@ function showRaterForSegment(segment) {
 
 // Render rater content
 function renderRaterContent(raterCategory) {
-    // Calculate summary stats
+    // Calculate summary stats - treat "then-pending-now-completed" and "not-required" as completed
     const totalCombinations = raterCategory.combinations.length;
-    const completedCombinations = raterCategory.combinations.filter(c => c.status === 'completed').length;
-    const pendingCombinations = raterCategory.combinations.filter(c => c.status === 'pending').length;
-    const inProgressCombinations = raterCategory.combinations.filter(c => c.status === 'in-progress').length;
-    const notStartedCombinations = raterCategory.combinations.filter(c => c.status === 'not-started').length;
     
-    // Render summary stats
+    // Count completed combinations (including "then-pending-now-completed" and "not-required")
+    const completedCombinations = raterCategory.combinations.filter(c => 
+        c.status === 'completed' || c.status === 'then-pending-now-completed' || c.status === 'not-required'
+    ).length;
+    
+    // Count pending combinations (excluding "then-pending-now-completed" and "not-required")
+    const pendingCombinations = raterCategory.combinations.filter(c => 
+        c.status === 'pending' || c.status === 'in-progress' || 
+        c.status === 'not-started' || c.status === 'failed'
+    ).length;
+    
+    // Render summary stats - only 3 cards now
     raterSummaryStats.innerHTML = `
         <div class="rater-summary-stat">
             <div class="rater-summary-number">${totalCombinations}</div>
@@ -1708,14 +1685,6 @@ function renderRaterContent(raterCategory) {
             <div class="rater-summary-number" style="color: #e74c3c;">${pendingCombinations}</div>
             <div class="rater-summary-label">Pending</div>
         </div>
-        <div class="rater-summary-stat">
-            <div class="rater-summary-number" style="color: #f39c12;">${inProgressCombinations}</div>
-            <div class="rater-summary-label">In Progress</div>
-        </div>
-        <div class="rater-summary-stat">
-            <div class="rater-summary-number" style="color: #7f8c8d;">${notStartedCombinations}</div>
-            <div class="rater-summary-label">Not Started</div>
-        </div>
         <div class="rater-summary-stat" style="flex-grow: 1; min-width: 200px;">
             <div class="rater-summary-label">Completion Progress</div>
             <div class="progress-bar">
@@ -1727,10 +1696,18 @@ function renderRaterContent(raterCategory) {
     // Apply filters and sorting
     let filteredCombinations = [...raterCategory.combinations];
     
-    // Status filter
+    // Status filter - treat "then-pending-now-completed" and "not-required" as completed for filtering
     const statusFilter = raterStatusFilter.value;
     if (statusFilter !== 'ALL') {
-        filteredCombinations = filteredCombinations.filter(combo => combo.status === statusFilter);
+        if (statusFilter === 'completed') {
+            filteredCombinations = filteredCombinations.filter(combo => 
+                combo.status === 'completed' || combo.status === 'then-pending-now-completed' || combo.status === 'not-required'
+            );
+        } else if (statusFilter === 'not-required') {
+            filteredCombinations = filteredCombinations.filter(combo => combo.status === 'not-required');
+        } else {
+            filteredCombinations = filteredCombinations.filter(combo => combo.status === statusFilter);
+        }
     }
     
     // Search filter
