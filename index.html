@@ -1,416 +1,583 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Birthday Surprise!</title>
-    <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
-        
-        body {
-            background-color: #000;
-            color: #fff;
-            font-family: 'Courier New', monospace;
-            overflow: hidden;
-            height: 100vh;
-            width: 100vw;
-        }
-        
-        /* Sci-Fi Terminal Effect */
-        .terminal {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background: rgba(0, 20, 0, 0.95);
-            z-index: 1000;
-            display: flex;
-            flex-direction: column;
-            justify-content: center;
-            align-items: center;
-            padding: 20px;
-            overflow: hidden;
-        }
-        
-        .terminal-content {
-            max-width: 800px;
-            width: 100%;
-            text-align: center;
-        }
-        
-        .terminal-line {
-            font-size: 1.8rem;
-            color: #0f0;
-            text-shadow: 0 0 10px #0f0;
-            margin: 20px 0;
-            opacity: 0;
-            transform: translateY(20px);
-            animation: typeWriter 3s forwards;
-        }
-        
-        .scan-line {
-            position: absolute;
-            width: 100%;
-            height: 2px;
-            background: linear-gradient(90deg, transparent, #0f0, transparent);
-            animation: scan 3s linear infinite;
-        }
-        
-        .matrix-rain {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            pointer-events: none;
-            z-index: 1;
-        }
-        
-        /* Birthday Message Section */
-        .birthday-message {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background: radial-gradient(circle at center, #1a1a2e 0%, #16213e 70%, #0f0c29 100%);
-            display: none;
-            flex-direction: column;
-            justify-content: center;
-            align-items: center;
-            z-index: 2000;
-            padding: 20px;
-            text-align: center;
-        }
-        
-        .birthday-content {
-            max-width: 800px;
-            width: 100%;
-        }
-        
-        .birthday-title {
-            font-size: 4.5rem;
-            background: linear-gradient(45deg, #ff0080, #00dbde, #ff0080);
-            -webkit-background-clip: text;
-            background-clip: text;
-            color: transparent;
-            margin-bottom: 30px;
-            animation: glow 2s ease-in-out infinite alternate;
-        }
-        
-        .name-display {
-            font-size: 5rem;
-            color: #ffcc00;
-            text-shadow: 0 0 30px #ffcc00;
-            margin: 40px 0;
-            animation: pulse 1.5s ease-in-out infinite;
-            font-family: 'Arial Black', sans-serif;
-            letter-spacing: 2px;
-        }
-        
-        .birthday-text {
-            font-size: 2.2rem;
-            color: #fff;
-            line-height: 1.6;
-            margin-bottom: 40px;
-            text-shadow: 0 0 10px rgba(255, 255, 255, 0.5);
-        }
-        
-        .confetti {
-            position: fixed;
-            width: 15px;
-            height: 15px;
-            background-color: #f00;
-            opacity: 0;
-            z-index: 1001;
-        }
-        
-        .stars {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            pointer-events: none;
-            z-index: 1;
-        }
-        
-        .star {
-            position: absolute;
-            background-color: #fff;
-            border-radius: 50%;
-            animation: twinkle 3s infinite;
-        }
-        
-        /* Animations */
-        @keyframes typeWriter {
-            0% {
-                opacity: 0;
-                transform: translateY(20px);
-            }
-            100% {
-                opacity: 1;
-                transform: translateY(0);
-            }
-        }
-        
-        @keyframes scan {
-            0% {
-                top: 0%;
-                opacity: 0;
-            }
-            10% {
-                opacity: 1;
-            }
-            90% {
-                opacity: 1;
-            }
-            100% {
-                top: 100%;
-                opacity: 0;
-            }
-        }
-        
-        @keyframes glow {
-            from {
-                text-shadow: 0 0 20px #ff0080, 0 0 30px #ff0080, 0 0 40px #ff0080;
-            }
-            to {
-                text-shadow: 0 0 20px #00dbde, 0 0 30px #00dbde, 0 0 40px #00dbde;
-            }
-        }
-        
-        @keyframes pulse {
-            0%, 100% {
-                transform: scale(1);
-                text-shadow: 0 0 30px #ffcc00;
-            }
-            50% {
-                transform: scale(1.05);
-                text-shadow: 0 0 50px #ffcc00, 0 0 70px #ffcc00;
-            }
-        }
-        
-        @keyframes twinkle {
-            0%, 100% {
-                opacity: 0;
-            }
-            50% {
-                opacity: 1;
-            }
-        }
-        
-        @keyframes fadeIn {
-            from {
-                opacity: 0;
-            }
-            to {
-                opacity: 1;
-            }
-        }
-        
-        @media (max-width: 768px) {
-            .terminal-line {
-                font-size: 1.4rem;
-            }
-            
-            .birthday-title {
-                font-size: 3rem;
-            }
-            
-            .name-display {
-                font-size: 3.5rem;
-            }
-            
-            .birthday-text {
-                font-size: 1.8rem;
-            }
-        }
-    </style>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Policy MIS Dashboard</title>
+<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/xlsx/dist/xlsx.full.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/jspdf@2.5.1/dist/jspdf.umd.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/jspdf-autotable@3.8.2/dist/jspdf.plugin.autotable.min.js"></script>
+<style>:root{--green:#20c997;--teal:#00a896;--lime:#84cc16;--blue:#168aad;--orange:#ff9f1c;--purple:#7c3aed;--red:#ef476f}
+
+body{background:#f4f8f6;color:#1f2937}
+.card{border:0;box-shadow:0 3px 14px rgba(20,60,40,.08);border-radius:14px}
+.kpi{min-height:112px}
+.kpi h3{margin:6px 0 0;font-weight:700}
+.section-card{background:#fff;padding:18px;border-radius:12px;box-shadow:0 2px 10px rgba(0,0,0,.06);margin-top:18px}
+.table{margin-bottom:0}
+.table thead th{white-space:nowrap}
+.clickable{cursor:pointer;color:#0d6efd;text-decoration:none;font-weight:600}
+.clickable:hover{text-decoration:underline}
+.rate-good{background:#d1e7dd!important}
+.rate-warn{background:#fff3cd!important}
+.rate-bad{background:#f8d7da!important}
+.badge-api{background:#0d6efd}
+.badge-loader{background:#198754}
+.badge-unknown{background:#6c757d}
+.trace-link{color:#0d6efd;text-decoration:underline}
+.small-muted{font-size:.86rem;color:#6b7280}
+.chart-box{height:320px}
+.filter-row{display:flex;gap:10px;flex-wrap:wrap;align-items:center}
+.filter-row .form-select{max-width:230px}
+.empty{padding:20px;text-align:center;color:#6b7280}
+
+.integration-kpi-grid{
+  display:grid;
+  grid-template-columns:repeat(3,minmax(0,1fr));
+  gap:12px;
+}
+.integration-kpi{
+  min-width:0;
+  padding:14px;
+  border:1px solid #e5e7eb;
+  border-radius:12px;
+  background:#fff;
+}
+.integration-kpi .metric-label{
+  font-size:.78rem;
+  color:#6b7280;
+  white-space:nowrap;
+}
+.integration-kpi .metric-value{
+  font-size:1.15rem;
+  font-weight:700;
+  line-height:1.2;
+  white-space:nowrap;
+}
+.integration-kpi .failure-value{
+  font-size:1.15rem;
+  font-weight:700;
+  line-height:1.2;
+  white-space:nowrap;
+}
+@media (max-width: 900px){
+  .integration-kpi-grid{grid-template-columns:1fr;}
+}
+
+
+.trace-cell{
+  max-width:520px;
+  white-space:normal!important;
+  overflow-wrap:anywhere;
+  word-break:break-word;
+  line-height:1.9;
+}
+.trace-link{
+  display:inline-block;
+  margin:2px 6px 2px 0!important;
+  padding:2px 5px;
+  border-radius:4px;
+  background:#f0f7ff;
+}
+
+</style>
 </head>
 <body>
-    <!-- Sci-Fi Terminal Section -->
-    <div class="terminal" id="terminal">
-        <div class="scan-line"></div>
-        <div class="terminal-content">
-            <div class="terminal-line" style="animation-delay: 0.5s">INITIATING SYSTEM SCAN...</div>
-            <div class="terminal-line" style="animation-delay: 1.5s">ACCESSING BIRTHDAY PROTOCOL...</div>
-            <div class="terminal-line" style="animation-delay: 2.5s">DECRYPTING MESSAGE...</div>
-            <div class="terminal-line" style="animation-delay: 3.5s">IDENTITY CONFIRMED...</div>
-            <div class="terminal-line" style="animation-delay: 4.5s">PREPARING SURPRISE...</div>
-            <div class="terminal-line" style="animation-delay: 5.5s">ACTIVATION IN 3...</div>
-            <div class="terminal-line" style="animation-delay: 6s">2...</div>
-            <div class="terminal-line" style="animation-delay: 6.5s">1...</div>
-        </div>
+<div class="container py-4">
+  <div class="d-flex justify-content-between align-items-center flex-wrap gap-2">
+    <div>
+      <h2 class="mb-1">Policy MIS Dashboard</h2>
+      <div class="small-muted">Upload the policy MIS Excel/CSV to analyse IC, product, integration and missing-policy performance.</div>
     </div>
-    
-    <!-- Birthday Message Section -->
-    <div class="birthday-message" id="birthdayMessage">
-        <div class="stars" id="stars"></div>
-        <div class="birthday-content">
-            <h1 class="birthday-title">🎂 HAPPY BIRTHDAY! 🎉</h1>
-            <div class="name-display">XYZ</div>
-            <p class="birthday-text">
-                May your day be filled with cosmic joy,<br>
-                interstellar adventures, and<br>
-                memories that shine brighter than the stars!<br>
-                🚀✨🎁
-            </p>
-            <p class="birthday-text" style="font-size: 1.5rem; color: #00dbde;">
-                Scan complete. Birthday surprise delivered successfully!
-            </p>
-        </div>
-    </div>
-    
-    <!-- Matrix Rain Canvas -->
-    <canvas class="matrix-rain" id="matrixCanvas"></canvas>
+    <input class="form-control" style="max-width:340px" type="file" id="file" accept=".xlsx,.xls,.csv">
+  </div>
 
-    <script>
-        // Create stars
-        function createStars() {
-            const starsContainer = document.getElementById('stars');
-            const starCount = 150;
-            
-            for (let i = 0; i < starCount; i++) {
-                const star = document.createElement('div');
-                star.className = 'star';
-                star.style.width = Math.random() * 3 + 'px';
-                star.style.height = star.style.width;
-                star.style.left = Math.random() * 100 + '%';
-                star.style.top = Math.random() * 100 + '%';
-                star.style.animationDelay = Math.random() * 3 + 's';
-                star.style.animationDuration = Math.random() * 2 + 2 + 's';
-                starsContainer.appendChild(star);
-            }
-        }
-        
-        // Matrix rain effect
-        function initMatrixRain() {
-            const canvas = document.getElementById('matrixCanvas');
-            const ctx = canvas.getContext('2d');
-            
-            canvas.width = window.innerWidth;
-            canvas.height = window.innerHeight;
-            
-            const characters = '01';
-            const fontSize = 14;
-            const columns = canvas.width / fontSize;
-            const drops = Array(Math.floor(columns)).fill(1);
-            
-            function drawMatrix() {
-                ctx.fillStyle = 'rgba(0, 0, 0, 0.05)';
-                ctx.fillRect(0, 0, canvas.width, canvas.height);
-                
-                ctx.fillStyle = '#0f0';
-                ctx.font = fontSize + 'px monospace';
-                
-                for (let i = 0; i < drops.length; i++) {
-                    const text = characters[Math.floor(Math.random() * characters.length)];
-                    ctx.fillText(text, i * fontSize, drops[i] * fontSize);
-                    
-                    if (drops[i] * fontSize > canvas.height && Math.random() > 0.975) {
-                        drops[i] = 0;
-                    }
-                    drops[i]++;
-                }
-            }
-            
-            setInterval(drawMatrix, 35);
-            
-            window.addEventListener('resize', function() {
-                canvas.width = window.innerWidth;
-                canvas.height = window.innerHeight;
-            });
-        }
-        
-        // Create confetti
-        function createConfetti() {
-            const colors = ['#ff0080', '#00dbde', '#ffcc00', '#ff0000', '#00ff00', '#0000ff'];
-            
-            for (let i = 0; i < 150; i++) {
-                const confetti = document.createElement('div');
-                confetti.className = 'confetti';
-                confetti.style.left = Math.random() * 100 + 'vw';
-                confetti.style.top = Math.random() * 100 + 'vh';
-                confetti.style.backgroundColor = colors[Math.floor(Math.random() * colors.length)];
-                confetti.style.width = Math.random() * 20 + 5 + 'px';
-                confetti.style.height = confetti.style.width;
-                confetti.style.opacity = '1';
-                confetti.style.animation = `fadeIn 1s ${Math.random() * 2}s forwards`;
-                document.body.appendChild(confetti);
-                
-                // Animate confetti falling
-                const duration = Math.random() * 3 + 2;
-                confetti.animate([
-                    { transform: 'translateY(-100vh) rotate(0deg)' },
-                    { transform: `translateY(100vh) rotate(${Math.random() * 720}deg)` }
-                ], {
-                    duration: duration * 1000,
-                    easing: 'cubic-bezier(0.215, 0.61, 0.355, 1)',
-                    delay: Math.random() * 2000
-                });
-                
-                // Remove confetti after animation
-                setTimeout(() => confetti.remove(), duration * 1000 + 2000);
-            }
-        }
-        
-        // Transition from terminal to birthday message
-        function showBirthdayMessage() {
-            const terminal = document.getElementById('terminal');
-            const birthdayMessage = document.getElementById('birthdayMessage');
-            
-            // Hide terminal with fade out
-            terminal.style.opacity = '0';
-            terminal.style.transition = 'opacity 1s ease-in-out';
-            
-            setTimeout(() => {
-                terminal.style.display = 'none';
-                birthdayMessage.style.display = 'flex';
-                birthdayMessage.style.opacity = '0';
-                birthdayMessage.style.animation = 'fadeIn 1s forwards';
-                
-                // Create effects
-                createStars();
-                createConfetti();
-                
-                // Continue matrix rain
-                initMatrixRain();
-            }, 1000);
-        }
-        
-        // Initialize on page load
-        window.onload = function() {
-            createStars();
-            initMatrixRain();
-            
-            // Show birthday message after ALL terminal animations complete
-            // Last animation delay is 6.5s + animation duration of 3s = 9.5s
-            setTimeout(showBirthdayMessage, 9500);
-            
-            // Add click/tap to skip
-            document.body.addEventListener('click', function() {
-                const terminal = document.getElementById('terminal');
-                if (terminal.style.display !== 'none') {
-                    showBirthdayMessage();
-                }
-            });
-            
-            // Add spacebar to skip
-            document.addEventListener('keydown', function(e) {
-                if (e.code === 'Space' || e.key === ' ') {
-                    const terminal = document.getElementById('terminal');
-                    if (terminal.style.display !== 'none') {
-                        showBirthdayMessage();
-                    }
-                }
-            });
-        };
-    </script>
+  <div class="d-flex justify-content-end mt-2"><button class="btn btn-outline-success" onclick="downloadSummaryPDF()">Download Summary PDF</button></div>
+  <div class="row g-3 mt-2" id="cards"></div>
+
+  <div class="row g-3 mt-1">
+    <div class="col-md-6"><div class="section-card">
+      <div class="d-flex justify-content-between align-items-center">
+        <h4 class="mb-0">Company Overview</h4>
+        <button class="btn btn-sm btn-outline-primary" onclick="downloadCompanyPDF()">Download PDF</button>
+      </div>
+      <div class="chart-box mt-2"><canvas id="companyChart"></canvas></div>
+    </div></div>
+    <div class="col-md-6"><div class="section-card h-100">
+      <h4 class="mb-1">Integration Performance</h4>
+      <div class="small-muted mb-3">Failure percentage split between API, Loader and unmapped products.</div>
+      <div class="row g-3" id="integrationCards"></div>
+    </div></div></div>
+  </div>
+
+  <div class="section-card">
+    <div class="d-flex justify-content-between align-items-center flex-wrap gap-2">
+      <h4 class="mb-0">Company / IC Summary</h4><button class="btn btn-sm btn-outline-primary" onclick="downloadCompanyPDF()">Download IC Summary PDF</button>
+      <select id="companyView" class="form-select w-auto"><option>Table</option><option>Donut</option></select>
+    </div>
+    <div id="companyTable" class="mt-3"></div>
+    <div id="companyChartWrap" class="chart-box mt-3" style="display:none"><canvas id="companyChart2"></canvas></div>
+    <div id="productSummary" class="mt-3"></div>
+  </div>
+
+  <div class="section-card">
+    <div class="d-flex justify-content-between align-items-center flex-wrap gap-2">
+      <h4 class="mb-0">Circle Summary</h4>
+      <select id="circleView" class="form-select w-auto"><option>Table</option><option>Donut</option></select>
+    </div>
+    <div id="circleTable" class="mt-3"></div>
+    <div id="circleChartWrap" class="chart-box mt-3" style="display:none"><canvas id="circleChart2"></canvas></div>
+  </div>
+
+  <div class="section-card">
+    <div class="d-flex justify-content-between align-items-center flex-wrap gap-2">
+      <div>
+        <h4 class="mb-1">Missing Policies (<span id="missingTotal">0</span>)</h4>
+        <div class="small-muted">Trace IDs are clickable and open Telescope. Download the currently selected slice or the complete missing-policy summary.</div>
+      </div>
+      <div class="filter-row">
+        <select id="missingIcFilter" class="form-select"><option value="">All ICs</option></select>
+        <select id="missingTypeFilter" class="form-select">
+          <option value="">All Types</option><option value="API">API</option><option value="Loader">Loader</option><option value="Not Sure">Other LOB product</option>
+        </select>
+        <button class="btn btn-outline-primary" onclick="downloadMissingPDF()">Download PDF</button>
+      </div>
+    </div>
+    <div class="mt-3 d-flex gap-2 flex-wrap">
+      <button class="btn btn-sm btn-primary" onclick="downloadMissingPDF('API')">API Missing PDF</button>
+      <button class="btn btn-sm btn-success" onclick="downloadMissingPDF('Loader')">Loader Missing PDF</button>
+      <button class="btn btn-sm btn-secondary" onclick="downloadMissingPDF('Not Sure')">Other LOB PDF</button>
+      <button class="btn btn-sm btn-dark" onclick="downloadMissingPDF()">All Missing PDF</button>
+    </div>
+    <div id="mappingNotice" class="alert alert-warning mt-3 d-none"></div>
+    <div id="missingTable" class="mt-3"></div>
+  </div>
+</div>
+
+<script>
+const TELESCOPE_BASE_URL = "https://instech.ippbonline.com/telescope/requests";
+
+/*
+  MASTER MAPPING
+  -------------
+  Product names come from the uploaded Excel. Since the Excel does not contain
+  the integration type, define it here as IC -> Product -> API/Loader.
+
+  IC and product spellings are taken from the uploaded Excel's company_name and section columns.
+  Anything not present here is intentionally classified as "Not Sure".
+  This is the only place that needs updating when an integration moves.
+*/
+const MASTER_MAPPING = {
+  "Niva Bupa Health Insurance Co Ltd": {
+    "GPA": "Loader",
+    "Topup": "API",
+    "ASSY": "API",
+    "Indemnity": "API",
+    "Cancer Care": "API"
+  },
+  "Aditya Birla Health Insurance CoLtd": {
+    "GPA": "Loader",
+    "Indemnity": "Loader",
+    "ASSY": "Loader",
+    "Topup": "API",
+    "Nari suraksha": "Loader"
+  },
+  "Star Health Allied Insurance CoLtd": {
+    "GPA": "Loader",
+    "Topup": "Loader",
+    "ASSY": "Loader"
+  },
+  "IndusInd General Insurance": {
+    "GPA": "API",
+    "GMC": "API",
+    "Topup": "API"
+  },
+  "Royal Sundaram General Insurance Co Limited": {
+    "GPA": "Loader",
+    "ASSY": "Loader",
+    "Nari suraksha": "Loader"
+  },
+  "TATA AIG General Insurance": {
+    "GPA": "API",
+    "ASSY": "Loader",
+    "Cyber": "Loader",
+    "Travel": "API"
+  },
+  "Bajaj General Insurance Limited": {
+    "GPA": "Loader",
+    "Topup": "Loader",
+    "ASSY": "Loader",
+    "FHC": "API",
+    "Travel": "API"
+  },
+  "The New India Assurance Company Limited": {
+    "GPA": "Loader",
+    "ASSY": "Loader"
+  }
+};
+
+const CHART_COLORS=["#20c997","#00a896","#84cc16","#168aad","#ff9f1c","#7c3aed","#ef476f","#06b6d4","#f43f5e","#65a30d"];
+let companyChart, companyChart2, circleChart2;
+let currentRows = [];
+let currentMissing = [];
+let companyData = {};
+let circleData = {};
+
+function esc(v){
+  return String(v ?? "").replace(/[&<>"']/g, c => ({
+    "&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"
+  }[c]));
+}
+
+function integrationType(r){
+  const ic = String(r.company_name || "Unknown").trim();
+  const product = String(r.section || "Unknown").trim();
+  const direct = MASTER_MAPPING[ic];
+  if(direct && direct[product]) return direct[product];
+  return "Not Sure";
+}
+
+function cleanTraceId(value){
+  const s=String(value??"").trim();
+  const digits=s.match(/\d+/g);
+  return digits ? digits.join("") : "";
+}
+function traceUrl(trace){
+  const t=cleanTraceId(trace);
+  if(!t)return TELESCOPE_BASE_URL;
+  return TELESCOPE_BASE_URL+"?trace_id=%27"+encodeURIComponent(t)+"&tag="+encodeURIComponent(t);
+}
+
+function rateClass(rate){
+  if(rate <= 1) return "rate-good";
+  if(rate <= 5) return "rate-warn";
+  return "rate-bad";
+}
+
+document.getElementById("file").addEventListener("change", e=>{
+  const f=e.target.files[0];
+  if(!f) return;
+  const reader=new FileReader();
+  reader.onload=ev=>{
+    const data=new Uint8Array(ev.target.result);
+    const wb=XLSX.read(data,{type:"array"});
+    const ws=wb.Sheets[wb.SheetNames[0]];
+    const rows=XLSX.utils.sheet_to_json(ws,{defval:""});
+    process(rows);
+  };
+  reader.readAsArrayBuffer(f);
+});
+
+function process(rows){
+  rows.forEach(r=>{
+    r.policy_no=(r.policy_no||"").toString().trim();
+    const p=r.policy_no.toUpperCase();
+    r.isSuccess=!["","'",'"',"-","NA","N/A","NULL","PENDING"].includes(p);
+    r.company_name=r.company_name||"Unknown";
+    r.section=r.section||"Unknown";
+    r.transaction_amount=parseFloat((r.transaction_amount||0).toString().replace(/,/g,''))||0;
+    r.trace_id=cleanTraceId(r.trace_id);
+    r.integration=integrationType(r);
+  });
+
+  currentRows=rows;
+  const total=rows.length;
+  const success=rows.filter(r=>r.isSuccess);
+  const failure=rows.filter(r=>!r.isSuccess);
+  const totalPremium=rows.reduce((a,b)=>a+b.transaction_amount,0);
+
+  document.getElementById("cards").innerHTML=`
+    <div class="col-md-3"><div class="card p-3 kpi"><b>Total</b><h3>${total.toLocaleString()}</h3></div></div>
+    <div class="col-md-3"><div class="card p-3 kpi"><b>Success</b><h3>${success.length.toLocaleString()}</h3></div></div>
+    <div class="col-md-3"><div class="card p-3 kpi"><b>Failure</b><h3>${failure.length.toLocaleString()}</h3></div></div>
+    <div class="col-md-3"><div class="card p-3 kpi"><b>Premium</b><h3>₹${totalPremium.toLocaleString()}</h3></div></div>`;
+
+  renderIntegrationCards(rows);
+  renderCompany(rows,total);
+  renderCircle(rows,total);
+  renderMissing(rows);
+  populateIcFilter(rows);
+}
+
+function renderIntegrationCards(rows){
+  const box=document.getElementById("integrationCards");
+  if(!box)return;
+
+  box.className="integration-kpi-grid";
+
+  const apiLoader=rows.filter(r=>r.integration==="API" || r.integration==="Loader");
+  const otherLob=rows.filter(r=>r.integration==="Not Sure");
+  const cards=[
+    {label:"API", key:"API", badge:"badge-api"},
+    {label:"Loader", key:"Loader", badge:"badge-loader"},
+    {label:"Affinity Total Policy", rows:apiLoader, badge:"badge-api"},
+    {label:"Other LOB product", rows:otherLob, badge:"badge-unknown"}
+  ];
+
+  box.innerHTML=cards.map(card=>{
+    const all=card.rows || rows.filter(r=>r.integration===card.key);
+    const fail=all.filter(r=>!r.isSuccess);
+    const rate=all.length ? fail.length/all.length*100 : 0;
+
+    return `<div class="integration-kpi">
+      <div class="d-flex justify-content-between align-items-center mb-3">
+        <b>${card.label}</b>
+        <span class="badge ${card.badge}">${all.length.toLocaleString()} total</span>
+      </div>
+      <div class="row g-2">
+        <div class="col-4">
+          <div class="metric-label">Total</div>
+          <div class="metric-value">${all.length.toLocaleString()}</div>
+        </div>
+        <div class="col-4">
+          <div class="metric-label">Failed</div>
+          <div class="metric-value">${fail.length.toLocaleString()}</div>
+        </div>
+        <div class="col-4">
+          <div class="metric-label">Failure %</div>
+          <div class="failure-value">${rate.toFixed(2)}%</div>
+        </div>
+      </div>
+    </div>`;
+  }).join("");
+}
+
+function renderCompany(rows,total){
+  companyData={};
+  rows.forEach(r=>{
+    const c=r.company_name;
+    if(!companyData[c]) companyData[c]={t:0,s:0,f:0,p:0,types:{API:0,Loader:0,"Not Sure":0}};
+    companyData[c].t++;
+    if(r.isSuccess) companyData[c].s++; else companyData[c].f++;
+    companyData[c].p+=r.transaction_amount;
+    companyData[c].types[r.integration]++;
+  });
+
+  let html=`<div class="table-responsive"><table class="table table-bordered table-striped align-middle"><thead><tr>
+    <th>IC / Company</th><th>Total</th><th>Success</th><th>Failure</th><th>Failure %</th><th>Premium</th><th>Integration</th>
+  </tr></thead><tbody>`;
+  Object.entries(companyData).sort((a,b)=>b[1].t-a[1].t).forEach(([k,v])=>{
+    const rate=v.t?v.f/v.t*100:0;
+    html+=`<tr>
+      <td><a class="clickable" href="#" onclick="showProducts('${esc(k).replace(/'/g,"&#39;")}');return false">${esc(k)}</a></td>
+      <td>${v.t}</td><td>${v.s}</td><td>${v.f}</td>
+      <td class="${rateClass(rate)}"><b>${rate.toFixed(2)}%</b></td>
+      <td>₹${v.p.toLocaleString()}</td>
+      <td><span class="badge badge-api me-1">API ${v.types.API}</span><span class="badge badge-loader me-1">Loader ${v.types.Loader}</span><span class="badge badge-unknown">Not Sure ${v.types["Not Sure"]}</span></td>
+    </tr>`;
+  });
+  html+="</tbody></table></div>";
+  document.getElementById("companyTable").innerHTML=html;
+
+  if(companyChart) companyChart.destroy();
+  const labels=Object.keys(companyData);
+  companyChart=new Chart(document.getElementById("companyChart"),{
+    type:"doughnut",
+    data:{labels,datasets:[{data:labels.map(x=>companyData[x].t),backgroundColor:CHART_COLORS,borderWidth:2}]},
+    options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{position:"right"}}}
+  });
+
+  window._rows=rows;
+  window.showProducts=showProducts;
+}
+
+function showProducts(comp){
+  const data=currentRows.filter(x=>x.company_name===comp);
+  const g={};
+  data.forEach(r=>{
+    const p=r.section;
+    if(!g[p]) g[p]={t:0,s:0,f:0,p:0,type:r.integration};
+    g[p].t++; if(r.isSuccess)g[p].s++;else g[p].f++; g[p].p+=r.transaction_amount;
+  });
+  let h=`<div class="card p-3 border mt-3"><div class="d-flex justify-content-between"><h5 class="mb-0">${esc(comp)} — Product Summary</h5><button class="btn btn-sm btn-outline-secondary" onclick="document.getElementById('productSummary').innerHTML=''">Close</button></div>
+  <div class="table-responsive mt-3"><table class="table table-bordered"><thead><tr><th>Product</th><th>Type</th><th>Total</th><th>Success</th><th>Failure</th><th>Failure %</th><th>Premium</th></tr></thead><tbody>`;
+  Object.entries(g).forEach(([k,v])=>{
+    const rate=v.t?v.f/v.t*100:0;
+    const badge=v.type==="API"?"badge-api":v.type==="Loader"?"badge-loader":"badge-unknown";
+    h+=`<tr><td>${esc(k)}</td><td><span class="badge ${badge}">${v.type}</span></td><td>${v.t}</td><td>${v.s}</td><td>${v.f}</td><td class="${rateClass(rate)}"><b>${rate.toFixed(2)}%</b></td><td>₹${v.p.toLocaleString()}</td></tr>`;
+  });
+  h+="</tbody></table></div></div>";
+  document.getElementById("productSummary").innerHTML=h;
+}
+
+function renderCircle(rows,total){
+  circleData={};
+  rows.forEach(r=>{
+    const c=r.circle||r.circle_name||"Unknown";
+    if(!circleData[c]) circleData[c]={t:0,s:0,f:0,p:0};
+    circleData[c].t++; if(r.isSuccess)circleData[c].s++;else circleData[c].f++; circleData[c].p+=r.transaction_amount;
+  });
+
+  let ch=`<div class="table-responsive"><table class="table table-bordered table-striped align-middle"><thead><tr>
+    <th>Circle</th><th>Total</th><th>Success</th><th>Failure</th><th>Failure %</th><th>Premium</th><th>Weightage %</th>
+  </tr></thead><tbody>`;
+  Object.entries(circleData).sort((a,b)=>b[1].t-a[1].t).forEach(([k,v])=>{
+    const weight=total?v.t/total*100:0, rate=v.t?v.f/v.t*100:0;
+    const id="branches_"+k.replace(/\W/g,'_');
+    ch+=`<tr><td><a class="clickable" href="#" onclick="showBranches('${esc(k).replace(/'/g,"&#39;")}');return false">${esc(k)}</a></td><td>${v.t}</td><td>${v.s}</td><td>${v.f}</td><td class="${rateClass(rate)}"><b>${rate.toFixed(2)}%</b></td><td>₹${v.p.toLocaleString()}</td><td>${weight.toFixed(2)}%</td></tr>
+    <tr id="${id}" style="display:none"><td colspan="7"></td></tr>`;
+  });
+  ch+="</tbody></table></div>";
+  document.getElementById("circleTable").innerHTML=ch;
+  window.showBranches=showBranches;
+
+  if(circleChart2) circleChart2.destroy();
+  circleChart2=new Chart(document.getElementById("circleChart2"),{
+    type:"doughnut",
+    data:{labels:Object.keys(circleData),datasets:[{data:Object.values(circleData).map(x=>x.t),backgroundColor:CHART_COLORS,borderWidth:2}]},
+    options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{position:"right"}}}
+  });
+}
+
+function showBranches(circleName){
+  const data=currentRows.filter(x=>(x.circle||x.circle_name||"Unknown")===circleName);
+  const g={};
+  data.forEach(r=>{
+    const b=r.branch_name||r.ippb_sol_name_branch_name||"Unknown";
+    if(!g[b])g[b]={t:0,s:0,f:0,p:0};
+    g[b].t++;if(r.isSuccess)g[b].s++;else g[b].f++;g[b].p+=r.transaction_amount;
+  });
+  const el=document.getElementById("branches_"+circleName.replace(/\W/g,'_'));
+  if(el.style.display==="none"){
+    let h=`<td colspan="7"><div class="p-2"><table class="table table-bordered mb-0"><thead><tr><th>Branch</th><th>Total</th><th>Success</th><th>Failure</th><th>Failure %</th><th>Premium</th></tr></thead><tbody>`;
+    Object.entries(g).forEach(([k,v])=>{
+      const rate=v.t?v.f/v.t*100:0;
+      h+=`<tr><td>${esc(k)}</td><td>${v.t}</td><td>${v.s}</td><td>${v.f}</td><td class="${rateClass(rate)}"><b>${rate.toFixed(2)}%</b></td><td>₹${v.p.toLocaleString()}</td></tr>`;
+    });
+    h+="</tbody></table></div></td>";
+    el.innerHTML=h; el.style.display="table-row";
+  }else el.style.display="none";
+}
+
+function populateIcFilter(rows){
+  const sel=document.getElementById("missingIcFilter");
+  const ics=[...new Set(rows.map(r=>r.company_name))].sort();
+  sel.innerHTML='<option value="">All ICs</option>'+ics.map(x=>`<option value="${esc(x)}">${esc(x)}</option>`).join("");
+  sel.onchange=renderMissingFiltered;
+  document.getElementById("missingTypeFilter").onchange=renderMissingFiltered;
+}
+
+function buildMissing(rows){
+  return rows.filter(r=>!r.isSuccess).map(r=>({
+    IC:r.company_name, Product:r.section, Type:r.integration,
+    PolicyNo:r.policy_no, TraceID:r.trace_id||"", Premium:r.transaction_amount
+  }));
+}
+
+function renderMissing(rows){
+  currentMissing=buildMissing(rows);
+  renderMissingFiltered();
+  const notMapped=[...new Set(rows.filter(r=>r.integration==="Not Sure").map(r=>r.company_name+" — "+r.section))];
+  const notice=document.getElementById("mappingNotice");
+  if(notMapped.length){
+    notice.classList.remove("d-none");
+    notice.innerHTML=`<b>Other LOB product:</b> ${notMapped.length} IC/Product combination(s) are not in the master mapping. They have not been assumed to be API or Loader.`;
+  }else notice.classList.add("d-none");
+}
+
+function renderMissingFiltered(){
+  const ic=document.getElementById("missingIcFilter").value;
+  const type=document.getElementById("missingTypeFilter").value;
+  const data=currentMissing.filter(r=>(!ic||r.IC===ic)&&(!type||r.Type===type));
+  document.getElementById("missingTotal").textContent=data.length.toLocaleString();
+
+  if(!data.length){document.getElementById("missingTable").innerHTML='<div class="empty">No missing policies match the selected filters.</div>';return;}
+  let m=`<div class="table-responsive"><table class="table table-bordered table-striped align-middle"><thead><tr><th>IC</th><th>Product</th><th>Type</th><th>Missing</th><th style="min-width:280px;width:42%">Trace ID</th><th>Premium</th></tr></thead><tbody>`;
+  const groups={};
+  data.forEach(r=>{
+    const key=r.IC+"||"+r.Product+"||"+r.Type;
+    if(!groups[key])groups[key]=[];
+    groups[key].push(r);
+  });
+  Object.values(groups).forEach(items=>{
+    const first=items[0];
+    m+=`<tr><td>${esc(first.IC)}</td><td>${esc(first.Product)}</td><td><span class="badge ${first.Type==="API"?"badge-api":first.Type==="Loader"?"badge-loader":"badge-unknown"}">${first.Type}</span></td><td>${items.length}</td><td class="trace-cell">${items.map(r=>{const t=cleanTraceId(r.TraceID);return t?`<a class="trace-link" target="_blank" rel="noopener" href="${traceUrl(t)}">${esc(t)}</a>`:"—";}).join("")}</td><td>₹${items.reduce((a,b)=>a+b.Premium,0).toLocaleString()}</td></tr>`;
+  });
+  m+="</tbody></table></div>";
+  document.getElementById("missingTable").innerHTML=m;
+}
+
+function pdfDoc(title){
+  const {jsPDF}=window.jspdf;
+  const doc=new jsPDF({orientation:"landscape"});
+  doc.setFontSize(18);
+  doc.text(title,14,16);
+  doc.setFontSize(9);
+  doc.text("Policy MIS Dashboard",14,23);
+  return doc;
+}
+function filteredMissing(typeOverride){
+  const ic=document.getElementById("missingIcFilter").value;
+  const type=typeOverride||document.getElementById("missingTypeFilter").value;
+  return currentMissing.filter(r=>(!ic||r.IC===ic)&&(!type||r.Type===type));
+}
+function downloadMissingPDF(typeOverride){
+  const data=filteredMissing(typeOverride);
+  if(!data.length){alert("No missing policies available for this selection.");return;}
+  const doc=pdfDoc("Missing Policies Report");
+  const body=data.map(r=>[r.IC,r.Product,r.Type,r.TraceID||"",String(r.Premium??0)]);
+  doc.autoTable({
+    startY:30,
+    head:[["IC","Product","Type","Trace ID","Premium"]],
+    body,
+    styles:{fontSize:7},
+    headStyles:{fillColor:[0,168,150]}
+  });
+  doc.save("missing_policies_"+(typeOverride||"All").replace(/\s/g,"_")+".pdf");
+}
+function downloadSummaryPDF(){
+  if(!currentRows.length){alert("Upload data first.");return;}
+  const doc=pdfDoc("Policy MIS Summary");
+  const total=currentRows.length;
+  const failed=currentRows.filter(r=>!r.isSuccess).length;
+  const body=["API","Loader","Not Sure"].map(type=>{
+    const a=currentRows.filter(r=>r.integration===type);
+    const f=a.filter(r=>!r.isSuccess);
+    return [type,a.length,f.length,a.length?(f.length/a.length*100).toFixed(2)+"%":"0.00%"];
+  });
+  doc.autoTable({
+    startY:30,
+    head:[["Integration","Total Policies","Failures","Failure %"]],
+    body:[["Overall",total,failed,total?(failed/total*100).toFixed(2)+"%":"0.00%"],...body],
+    headStyles:{fillColor:[0,168,150]}
+  });
+  doc.save("policy_mis_summary.pdf");
+}
+function downloadCompanyPDF(){
+  if(!Object.keys(companyData).length){alert("Upload data first.");return;}
+  const doc=pdfDoc("IC / Company Summary");
+  const body=Object.entries(companyData).sort((a,b)=>b[1].t-a[1].t).map(([k,v])=>[
+    k,v.t,v.s,v.f,v.t?(v.f/v.t*100).toFixed(2)+"%":"0.00%",v.types.API,v.types.Loader,v.types["Not Sure"]
+  ]);
+  doc.autoTable({
+    startY:30,
+    head:[["IC","Total","Success","Failure","Failure %","API","Loader","Not Sure"]],
+    body,
+    styles:{fontSize:7},
+    headStyles:{fillColor:[0,168,150]}
+  });
+  doc.save("ic_summary.pdf");
+}
+
+document.getElementById("companyView").onchange=e=>{
+  document.getElementById("companyTable").style.display=e.target.value==="Table"?"block":"none";
+  document.getElementById("companyChartWrap").style.display=e.target.value==="Donut"?"block":"none";
+  if(e.target.value==="Donut"){
+    if(companyChart2)companyChart2.destroy();
+    companyChart2=new Chart(document.getElementById("companyChart2"),{
+      type:"doughnut",
+      data:{labels:Object.keys(companyData),datasets:[{data:Object.values(companyData).map(x=>x.t),backgroundColor:CHART_COLORS,borderWidth:2}]},
+      options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{position:"right"}}}
+    });
+  }
+};
+document.getElementById("circleView").onchange=e=>{
+  document.getElementById("circleTable").style.display=e.target.value==="Table"?"block":"none";
+  document.getElementById("circleChartWrap").style.display=e.target.value==="Donut"?"block":"none";
+};
+
+</script>
 </body>
 </html>
