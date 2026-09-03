@@ -350,77 +350,66 @@ body:before{
 
 </head>
 <body>
-<div class="container py-4">
-  <div class="d-flex justify-content-between align-items-center flex-wrap gap-2">
-    <div>
-      <h2 class="mb-1">Policy MIS Dashboard</h2>
-      <div class="small-muted">Upload the policy MIS Excel/CSV to analyse IC, product, integration and missing-policy performance.</div>
-    </div>
-    <input class="form-control" style="max-width:340px" type="file" id="file" accept=".xlsx,.xls,.csv">
-  </div>
-
-  <div class="d-flex justify-content-end mt-2"><button class="btn btn-outline-success" onclick="downloadSummaryPDF()">Download Summary PDF</button></div>
-  <div class="row g-3 mt-2" id="cards"></div>
-
-  <div class="row g-3 mt-1">
-    <div class="col-md-6"><div class="section-card">
-      <div class="d-flex justify-content-between align-items-center">
-        <h4 class="mb-0">Company Overview</h4>
-        <button class="btn btn-sm btn-outline-primary" onclick="downloadCompanyPDF()">Download PDF</button>
+<div class="v3-shell">
+  <div class="ambient ambient-a"></div><div class="ambient ambient-b"></div>
+  <section id="landing" class="landing-screen">
+    <div class="top-mark"><span class="mark-dot"></span><span>POLICY INTELLIGENCE</span><span class="mark-line"></span><span class="live-pill">LIVE WORKSPACE</span></div>
+    <div class="landing-grid">
+      <div class="landing-copy">
+        <div class="eyebrow">OPERATIONS / CONTROL CENTER</div>
+        <h1>Policy MIS<br><em>Command Deck</em></h1>
+        <p>One workspace for policy performance, integration health, IC intelligence and missing-policy investigation.</p>
+        <button class="enter-btn" id="enterDashboard" type="button"><span>Enter Command Deck</span><b>↗</b></button>
+        <div class="micro-stats"><span><strong>01</strong> Upload MIS</span><span><strong>02</strong> Analyse</span><span><strong>03</strong> Investigate</span></div>
       </div>
-      <div class="chart-box mt-2"><canvas id="companyChart"></canvas></div>
-    </div></div>
-    <div class="col-md-6"><div class="section-card h-100">
-      <h4 class="mb-1">Integration Performance</h4>
-      <div class="small-muted mb-3">Failure percentage split between API, Loader and unmapped products.</div>
-      <div class="row g-3" id="integrationCards"></div>
-    </div></div>
-  </div>
-
-  <div class="section-card">
-    <div class="d-flex justify-content-between align-items-center flex-wrap gap-2">
-      <h4 class="mb-0">Company / IC Summary</h4><button class="btn btn-sm btn-outline-primary" onclick="downloadCompanyPDF()">Download IC Summary PDF</button>
-      <select id="companyView" class="form-select w-auto"><option>Table</option><option>Donut</option></select>
-    </div>
-    <div id="companyTable" class="mt-3"></div>
-    <div id="companyChartWrap" class="chart-box mt-3" style="display:none"><canvas id="companyChart2"></canvas></div>
-    <div id="productSummary" class="mt-3"></div>
-  </div>
-
-  <div class="section-card">
-    <div class="d-flex justify-content-between align-items-center flex-wrap gap-2">
-      <h4 class="mb-0">Circle Summary</h4>
-      <select id="circleView" class="form-select w-auto"><option>Table</option><option>Donut</option></select>
-    </div>
-    <div id="circleTable" class="mt-3"></div>
-    <div id="circleChartWrap" class="chart-box mt-3" style="display:none"><canvas id="circleChart2"></canvas></div>
-  </div>
-
-  <div class="section-card">
-    <div class="d-flex justify-content-between align-items-center flex-wrap gap-2">
-      <div>
-        <h4 class="mb-1">Missing Policies (<span id="missingTotal">0</span>)</h4>
-        <div class="small-muted">Trace IDs are clickable and open Telescope. Download the currently selected slice or the complete missing-policy summary.</div>
-      </div>
-      <div class="filter-row">
-        <select id="missingIcFilter" class="form-select"><option value="">All ICs</option></select>
-        <select id="missingTypeFilter" class="form-select">
-          <option value="">All Types</option><option value="API">API</option><option value="Loader">Loader</option><option value="Not Sure">Other LOB product</option>
-        </select>
-        <button class="btn btn-outline-primary" onclick="downloadMissingPDF()">Download PDF</button>
+      <div class="orbital">
+        <div class="orbit orbit-1"></div><div class="orbit orbit-2"></div><div class="orbit orbit-3"></div>
+        <div class="core"><div class="core-ring"></div><span>POLICY<br>OPS</span></div>
+        <div class="orbit-label l1">IC / PRODUCT</div><div class="orbit-label l2">API / LOADER</div><div class="orbit-label l3">MISSING / TRACE</div>
       </div>
     </div>
-    <div class="mt-3 d-flex gap-2 flex-wrap">
-      <button class="btn btn-sm btn-primary" onclick="downloadMissingPDF('API')">API Missing PDF</button>
-      <button class="btn btn-sm btn-success" onclick="downloadMissingPDF('Loader')">Loader Missing PDF</button>
-      <button class="btn btn-sm btn-secondary" onclick="downloadMissingPDF('Not Sure')">Other LOB PDF</button>
-      <button class="btn btn-sm btn-dark" onclick="downloadMissingPDF()">All Missing PDF</button>
-    </div>
-    <div id="mappingNotice" class="alert alert-warning mt-3 d-none"></div>
-    <div id="missingTable" class="mt-3"></div>
-  </div>
+    <div class="landing-foot"><span>PRIVATE MIS ANALYTICS</span><span>BUILT FOR DECISION FLOW</span></div>
+  </section>
+
+  <main id="workspace" class="workspace" style="display:none">
+    <header class="command-header">
+      <div class="brand-lockup"><div class="brand-symbol">P</div><div><div class="brand-title">Policy MIS</div><div class="brand-sub">Command Deck <span>•</span> Operations Intelligence</div></div></div>
+      <div class="header-actions">
+        <label class="upload-chip" for="file"><span class="upload-icon">↑</span><span>Upload MIS</span><input type="file" id="file" accept=".xlsx,.xls,.csv"></label>
+        <button class="ghost-btn" onclick="downloadSummaryPDF()">Export Summary <span>↓</span></button>
+      </div>
+    </header>
+
+    <section class="hero-strip">
+      <div><div class="section-kicker">TODAY'S CONTROL VIEW</div><h2>See the operation.<br><span>Spot the exception.</span></h2></div>
+      <div class="hero-note"><span class="pulse"></span><div><b>Workspace ready</b><small>Upload a policy MIS file to populate live intelligence.</small></div></div>
+    </section>
+
+    <section class="kpi-zone"><div class="zone-label">01 / EXECUTIVE SIGNALS</div><div class="kpi-grid" id="cards"></div></section>
+
+    <section class="split-zone">
+      <article class="panel company-panel"><div class="panel-head"><div><div class="panel-index">02A</div><h3>Company Overview</h3><p>Portfolio distribution across insurance companies.</p></div><button class="icon-btn" onclick="downloadCompanyPDF()" title="Download PDF">↓</button></div><div class="chart-stage"><canvas id="companyChart"></canvas></div></article>
+      <article class="panel integration-panel"><div class="panel-head"><div><div class="panel-index">02B</div><h3>Integration Pulse</h3><p>Failure percentage by integration path.</p></div></div><div id="integrationCards" class="integration-grid"></div></article>
+    </section>
+
+    <section class="panel data-panel"><div class="panel-head"><div><div class="panel-index">03</div><h3>Company / IC Intelligence</h3><p>Drill into company performance and product-level movement.</p></div><div class="control-cluster"><select id="companyView"><option>Table</option><option>Donut</option></select><button class="ghost-btn compact" onclick="downloadCompanyPDF()">Export IC PDF</button></div></div><div id="companyTable" class="data-host"></div><div id="companyChartWrap" class="chart-stage" style="display:none"><canvas id="companyChart2"></canvas></div><div id="productSummary" class="drill-host"></div></section>
+
+    <section class="panel data-panel"><div class="panel-head"><div><div class="panel-index">04</div><h3>Circle Intelligence</h3><p>Regional performance, with branch-level drilldown.</p></div><div class="control-cluster"><select id="circleView"><option>Table</option><option>Donut</option></select></div></div><div id="circleTable" class="data-host"></div><div id="circleChartWrap" class="chart-stage" style="display:none"><canvas id="circleChart2"></canvas></div></section>
+
+    <section class="missing-panel">
+      <div class="missing-top"><div><div class="panel-index">05 / EXCEPTION ROOM</div><h3>Missing Policies</h3><p>Trace every unresolved policy. Filter the queue. Export the slice you need.</p></div><div class="missing-counter"><span id="missingTotal">0</span><small>OPEN EXCEPTIONS</small></div></div>
+      <div class="filter-deck"><div class="filter-label">FILTER QUEUE</div><select id="missingIcFilter"><option value="">All ICs</option></select><select id="missingTypeFilter"><option value="">All Types</option><option value="API">API</option><option value="Loader">Loader</option><option value="Not Sure">Not Sure</option></select><button class="action-btn" onclick="downloadMissing()">Download CSV ↓</button></div>
+      <div class="export-rail"><button onclick="downloadMissing('API')">API Missing</button><button onclick="downloadMissing('Loader')">Loader Missing</button><button onclick="downloadMissing('Not Sure')">Not Sure</button><button onclick="downloadMissing()">All Missing</button></div>
+      <div id="mappingNotice" class="alert alert-warning mt-3 d-none"></div><div id="missingTable" class="missing-host"></div>
+    </section>
+    <footer class="deck-footer"><span>POLICY MIS COMMAND DECK / V3</span><span>TRACE LINKS OPEN IN TELESCOPE</span></footer>
+  </main>
 </div>
 
+<style>
+:root{--bg:#030508;--panel:#0a0e14;--panel2:#0d131b;--line:#1c2631;--muted:#778493;--text:#edf4f8;--cyan:#5de1ff;--cyan2:#19a8d0;--green:#42e6a4;--amber:#f5c451;--red:#ff6b87}*{box-sizing:border-box}html{scroll-behavior:smooth}body{margin:0;background:radial-gradient(circle at 75% 0%,#10212c 0,#06090d 32%,#030508 75%);color:var(--text);font-family:Inter,ui-sans-serif,system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;min-height:100vh}.v3-shell{min-height:100vh;position:relative;overflow:hidden}.ambient{position:fixed;width:420px;height:420px;border-radius:50%;filter:blur(100px);opacity:.09;pointer-events:none}.ambient-a{background:#27d9ff;top:-220px;right:-120px}.ambient-b{background:#6f5cff;bottom:-260px;left:-160px}.landing-screen{min-height:100vh;padding:34px 6vw 24px;display:flex;flex-direction:column;position:relative}.top-mark,.landing-foot{display:flex;align-items:center;gap:12px;font-size:10px;letter-spacing:2px;color:#73808d;font-weight:700}.mark-dot{width:7px;height:7px;border-radius:50%;background:var(--cyan);box-shadow:0 0 18px var(--cyan)}.mark-line{height:1px;width:70px;background:#27323d}.live-pill{border:1px solid #24404d;border-radius:999px;padding:7px 11px;color:#75b6c8;background:#07141a}.landing-grid{flex:1;display:grid;grid-template-columns:1.05fr .95fr;align-items:center;max-width:1280px;width:100%;margin:auto}.landing-copy{padding:40px 0}.eyebrow,.section-kicker,.panel-index{font-size:10px;letter-spacing:2.2px;color:#5f8594;font-weight:800}.landing-copy h1{font-size:clamp(56px,7vw,108px);line-height:.88;letter-spacing:-5px;margin:20px 0 30px;font-weight:800}.landing-copy h1 em{font-style:normal;color:transparent;-webkit-text-stroke:1px #6e7c87}.landing-copy p{max-width:590px;color:#8b98a5;font-size:17px;line-height:1.7}.enter-btn{margin-top:32px;border:1px solid #345665;background:linear-gradient(135deg,#12303b,#091217);color:#e9faff;border-radius:14px;padding:17px 21px;min-width:245px;display:flex;justify-content:space-between;align-items:center;font-weight:800;box-shadow:0 20px 60px #0008;cursor:pointer;transition:.25s}.enter-btn:hover{transform:translateY(-3px);border-color:#6edcff;box-shadow:0 22px 70px #1bd9ff22}.enter-btn b{font-size:20px;color:var(--cyan)}.micro-stats{display:flex;gap:25px;margin-top:45px;color:#65717e;font-size:11px}.micro-stats strong{color:#b5c1cb;margin-right:6px}.orbital{height:540px;position:relative;display:grid;place-items:center}.orbit{position:absolute;border:1px solid #1d3a46;border-radius:50%;transform:rotate(-18deg)}.orbit-1{width:300px;height:300px}.orbit-2{width:430px;height:210px;border-color:#18303a}.orbit-3{width:480px;height:480px;border-color:#13252d}.core{width:132px;height:132px;border-radius:50%;background:radial-gradient(circle,#18343f,#081016 65%);border:1px solid #4c98aa;box-shadow:0 0 70px #23c9ef25,inset 0 0 35px #2bd8ff13;display:grid;place-items:center;text-align:center;font-size:11px;letter-spacing:2px;font-weight:900;position:relative;z-index:2}.core-ring{position:absolute;inset:-13px;border:1px solid #1f5565;border-radius:50%;border-left-color:var(--cyan);animation:spin 8s linear infinite}.orbit-label{position:absolute;font-size:9px;letter-spacing:1.8px;color:#5d7884;background:#060b10;padding:7px 9px;border:1px solid #1b3039;border-radius:5px}.l1{top:105px;right:30px}.l2{bottom:95px;left:55px}.l3{top:50%;right:-15px}@keyframes spin{to{transform:rotate(360deg)}}.landing-foot{justify-content:space-between;border-top:1px solid #111a22;padding-top:16px}.workspace{max-width:1500px;margin:auto;padding:22px 4vw 50px;position:relative}.command-header{height:72px;border:1px solid #17212b;background:#070b10cc;backdrop-filter:blur(20px);border-radius:16px;display:flex;align-items:center;justify-content:space-between;padding:10px 13px 10px 16px;position:sticky;top:14px;z-index:20;box-shadow:0 18px 55px #0008}.brand-lockup{display:flex;gap:11px;align-items:center}.brand-symbol{width:40px;height:40px;border-radius:11px;display:grid;place-items:center;background:linear-gradient(145deg,#173a48,#091116);border:1px solid #315c6b;color:var(--cyan);font-weight:900}.brand-title{font-weight:800;font-size:15px}.brand-sub{font-size:9px;color:#677684;letter-spacing:1.1px;text-transform:uppercase;margin-top:2px}.brand-sub span{color:var(--cyan)}.header-actions,.control-cluster{display:flex;gap:8px;align-items:center}.upload-chip,.ghost-btn,.action-btn,.control-cluster select,.filter-deck select{font:inherit;border-radius:9px}.upload-chip{border:1px solid #24404d;background:#0a151c;padding:9px 12px;color:#b8dbe4;font-size:11px;font-weight:800;cursor:pointer}.upload-chip input{display:none}.upload-icon{color:var(--cyan);margin-right:6px}.ghost-btn{border:1px solid #273440;background:#0a0f15;color:#b7c3cc;padding:9px 12px;font-size:11px;font-weight:800;cursor:pointer}.ghost-btn:hover{border-color:#4d7380;color:#fff}.compact{padding:8px 10px}.hero-strip{display:flex;justify-content:space-between;align-items:end;padding:72px 10px 40px}.hero-strip h2{font-size:clamp(38px,5vw,70px);line-height:.96;letter-spacing:-3px;margin:10px 0 0}.hero-strip h2 span{color:#6c7882}.hero-note{display:flex;gap:12px;align-items:center;border-left:1px solid #26333d;padding-left:20px;max-width:310px}.hero-note b{display:block;font-size:12px}.hero-note small{display:block;color:#687683;margin-top:4px;font-size:10px}.pulse{width:9px;height:9px;border-radius:50%;background:var(--green);box-shadow:0 0 15px #42e6a4;flex:none}.zone-label{font-size:10px;letter-spacing:2px;color:#566773;font-weight:800;margin-bottom:12px}.kpi-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:10px}.kpi-grid .card,.kpi-grid .kpi{background:linear-gradient(145deg,#0b1118,#080c11)!important;border:1px solid #18232d!important;border-radius:14px!important;box-shadow:none!important;min-height:120px}.kpi-grid .card:hover{border-color:#2a4653!important;transform:translateY(-2px)}.split-zone{display:grid;grid-template-columns:1.1fr .9fr;gap:12px;margin-top:34px}.panel,.missing-panel{background:linear-gradient(145deg,#0a0f15,#070a0e);border:1px solid #18232d;border-radius:17px;box-shadow:0 22px 70px #0005}.panel{padding:22px}.panel-head{display:flex;justify-content:space-between;align-items:flex-start;gap:16px}.panel-head h3,.missing-top h3{font-size:19px;margin:5px 0 4px;letter-spacing:-.4px}.panel-head p,.missing-top p{font-size:11px;color:#687681;margin:0;line-height:1.5}.icon-btn{width:36px;height:36px;border:1px solid #243642;background:#0b1319;color:#72dfff;border-radius:9px;cursor:pointer}.chart-stage{height:310px;margin-top:18px}.integration-grid{margin-top:25px;display:grid;grid-template-columns:1fr;gap:10px}.integration-kpi{background:#0b1219!important;border:1px solid #1a2a35!important;border-radius:12px!important}.data-panel{margin-top:12px}.control-cluster select,.filter-deck select{background:#080d12;color:#b7c4ce;border:1px solid #273640;padding:8px 11px;font-size:10px;outline:none}.data-host{margin-top:17px;overflow:auto}.data-host table,.missing-host table{color:#bdc8d0!important;border-color:#1c2832!important}.data-host .table,.missing-host .table{--bs-table-bg:transparent;--bs-table-color:#bdc8d0;--bs-table-border-color:#1b2730}.data-host .table thead th,.missing-host .table thead th{background:#0d151d;color:#7eacbb;border-bottom:1px solid #28404c!important}.data-host .table tbody tr:hover,.missing-host .table tbody tr:hover{background:#0d151b!important}.drill-host{margin-top:15px}.missing-panel{margin-top:12px;padding:25px}.missing-top{display:flex;justify-content:space-between;align-items:center}.missing-counter{text-align:right}.missing-counter span{font-size:42px;font-weight:800;letter-spacing:-2px;color:#ff879e}.missing-counter small{display:block;color:#687680;font-size:9px;letter-spacing:1.5px}.filter-deck{display:flex;gap:8px;align-items:center;flex-wrap:wrap;background:#080d12;border:1px solid #17242d;border-radius:12px;padding:10px;margin-top:22px}.filter-label{font-size:9px;letter-spacing:1.6px;color:#5d7480;font-weight:800;margin-right:4px}.action-btn{border:1px solid #2b5968;background:#0b2028;color:#80e5ff;padding:8px 12px;font-size:10px;font-weight:800;cursor:pointer}.export-rail{display:flex;gap:7px;flex-wrap:wrap;margin-top:10px}.export-rail button{border:1px solid #202d37;background:transparent;color:#71818d;padding:7px 10px;border-radius:8px;font-size:9px;cursor:pointer}.export-rail button:hover{color:#dcebf1;border-color:#3b5965}.trace-link{color:#65dcff!important;background:#0b1a21!important}.badge-api{background:#126e96!important}.badge-loader{background:#08734f!important}.badge-unknown{background:#53606b!important}.deck-footer{display:flex;justify-content:space-between;border-top:1px solid #141e26;margin-top:25px;padding:16px 4px;color:#53616c;font-size:8px;letter-spacing:1.8px}.alert-warning{background:#33280f!important;color:#f3cf6e!important;border-color:#604d18!important}@media(max-width:900px){.landing-grid,.split-zone{grid-template-columns:1fr}.orbital{height:380px}.kpi-grid{grid-template-columns:repeat(2,1fr)}.hero-strip{align-items:flex-start;gap:25px;flex-direction:column}.hero-note{border-left:0;border-top:1px solid #26333d;padding:15px 0 0}.command-header{position:relative;top:0}.header-actions{flex-wrap:wrap}.landing-copy h1{letter-spacing:-3px}}@media(max-width:560px){.landing-screen{padding:22px}.orbital{transform:scale(.72);margin:-40px 0}.kpi-grid{grid-template-columns:1fr}.workspace{padding:12px}.command-header{height:auto;gap:10px;align-items:flex-start;flex-direction:column}.header-actions{width:100%}.upload-chip,.ghost-btn{flex:1;text-align:center}.hero-strip{padding:45px 5px 28px}.hero-strip h2{letter-spacing:-2px}.landing-foot{font-size:8px}.micro-stats{gap:10px;flex-wrap:wrap}}
+</style>
+<script>document.getElementById('enterDashboard').addEventListener('click',function(){const l=document.getElementById('landing'),w=document.getElementById('workspace');l.style.transition='opacity .45s ease,transform .55s ease';l.style.opacity='0';l.style.transform='scale(.985)';setTimeout(()=>{l.style.display='none';w.style.display='block';w.style.opacity='0';w.style.transform='translateY(14px)';requestAnimationFrame(()=>{w.style.transition='opacity .45s ease,transform .55s ease';w.style.opacity='1';w.style.transform='translateY(0)'})},430)});</script>
 <script>
 const TELESCOPE_BASE_URL = "https://instech.ippbonline.com/telescope/requests";
 const MASTER_MAPPING = {
