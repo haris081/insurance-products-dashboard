@@ -165,6 +165,8 @@ body:before{
 #companyChart,#companyChart2,#circleChart2{filter:drop-shadow(0 5px 12px rgba(20,60,40,.05))}
 #mappingNotice{border:0;border-left:4px solid var(--orange);border-radius:10px}
 #missingTable .table td:first-child{font-weight:600}
+#missingTable .missing-ic-name,#missingTable .missing-product-name{color:#ff6b7a!important;font-weight:800!important}
+#missingTable .missing-ic-name{display:inline-block}
 
 /* subtle section labels */
 .section-card:has(#integrationCards) h4:before{
@@ -546,7 +548,7 @@ function showProducts(comp){
 function renderCircle(rows,total){
  circleData={};rows.forEach(r=>{const c=r.circle||r.circle_name||"Unknown";if(!circleData[c])circleData[c]={t:0,s:0,f:0,p:0};circleData[c].t++;if(r.isSuccess)circleData[c].s++;else circleData[c].f++;circleData[c].p+=r.transaction_amount});
  let ch=`<div class="table-responsive"><table class="table table-bordered table-striped align-middle"><thead><tr><th>Circle</th><th>Total</th><th>Success</th><th>Failure</th><th>Failure %</th><th>Premium</th><th>Weightage %</th></tr></thead><tbody>`;
- Object.entries(circleData).sort((a,b)=>b[1].t-a[1].t).forEach(([k,v])=>{const weight=total?v.t/total*100:0,rate=v.t?v.f/v.t*100:0,id="branches_"+k.replace(/\W/g,'_');ch+=`<tr><td><a class="clickable" href="#" onclick="showBranches('${esc(k).replace(/'/g,"&#39;")}');return false">${esc(k)}</a></td><td>${v.t}</td><td>${v.s}</td><td>${v.f}</td><td class="${rateClass(rate)}"><b>${rate.toFixed(2)}%</b></td><td>₹${v.p.toLocaleString()}</td><td>${weight.toFixed(2)}%</td></tr><tr id="${id}" style="display:none"><td colspan="7"></td></tr>`});
+ Object.entries(circleData).sort((a,b)=>b[1].t-a[1].t).forEach(([k,v])=>{const weight=total?v.t/total*100:0,rate=v.t?v.f/v.t*100:0,id="branches_"+k.replace(/\W/g,'_');const rateStyle=rate===0?"background:#123a2b!important;color:#8ff0bd!important":(rate<=1?"background:#4a3612!important;color:#ffd166!important":(rate>3?"background:#2b0b10!important;color:#ff6b7a!important":"background:#4a151b!important;color:#ff9aa8!important"));ch+=`<tr><td><a class="clickable" href="#" onclick="showBranches('${esc(k).replace(/'/g,"&#39;")}');return false">${esc(k)}</a></td><td>${v.t}</td><td>${v.s}</td><td>${v.f}</td><td class="${rateClass(rate)}" style="${rateStyle}"><b>${rate.toFixed(2)}%</b></td><td>₹${v.p.toLocaleString()}</td><td>${weight.toFixed(2)}%</td></tr><tr id="${id}" style="display:none"><td colspan="7"></td></tr>`});
  ch+="</tbody></table></div>";document.getElementById("circleTable").innerHTML=ch;window.showBranches=showBranches;
  if(circleChart2)circleChart2.destroy();circleChart2=new Chart(document.getElementById("circleChart2"),{type:"doughnut",data:{labels:Object.keys(circleData),datasets:[{data:Object.values(circleData).map(x=>x.t),backgroundColor:CHART_COLORS,borderWidth:2}]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{position:"right"}}}});
 }
@@ -564,11 +566,18 @@ function renderMissing(rows){
  if(notMapped.length){notice.classList.remove("d-none");notice.innerHTML=`<b>Other LOB product:</b> ${notMapped.length} IC/Product combination(s) are not in the master mapping. They have not been assumed to be API or Loader.`}else notice.classList.add("d-none");
 }
 function renderMissingFiltered(){
- const ic=document.getElementById("missingIcFilter").value,type=document.getElementById("missingTypeFilter").value,data=currentMissing.filter(r=>(!ic||r.IC===ic)&&(!type||r.Type===type));
+ const ic=document.getElementById("missingIcFilter").value,type=document.getElementById("missingTypeFilter").value;
+ const data=currentMissing.filter(r=>(!ic||r.IC===ic)&&(!type||r.Type===type)).sort((a,b)=>{
+  const icCmp=String(a.IC).localeCompare(String(b.IC),undefined,{sensitivity:"base"});
+  if(icCmp!==0)return icCmp;
+  const productCmp=String(a.Product).localeCompare(String(b.Product),undefined,{sensitivity:"base"});
+  if(productCmp!==0)return productCmp;
+  return String(a.TraceID).localeCompare(String(b.TraceID),undefined,{numeric:true,sensitivity:"base"});
+ });
  document.getElementById("missingTotal").textContent=data.length.toLocaleString();
  if(!data.length){document.getElementById("missingTable").innerHTML='<div class="empty">No missing policies found for the selected filters.</div>';return}
  let h=`<div class="table-responsive"><table class="table table-bordered table-striped align-middle"><thead><tr><th>IC / Company</th><th>Product</th><th>Type</th><th>Policy No.</th><th>Trace ID</th><th>Premium</th></tr></thead><tbody>`;
- data.forEach(r=>{const badge=r.Type==="API"?"badge-api":r.Type==="Loader"?"badge-loader":"badge-unknown";h+=`<tr><td>${esc(r.IC)}</td><td>${esc(r.Product)}</td><td><span class="badge ${badge}">${esc(r.Type)}</span></td><td>${esc(r.PolicyNo)}</td><td class="trace-cell">${r.TraceID?`<a class="trace-link" target="_blank" href="${traceUrl(r.TraceID)}">${esc(r.TraceID)}</a>`:"—"}</td><td>₹${Number(r.Premium||0).toLocaleString()}</td></tr>`});
+ data.forEach(r=>{const badge=r.Type==="API"?"badge-api":r.Type==="Loader"?"badge-loader":"badge-unknown";h+=`<tr><td><span class="missing-ic-name">${esc(r.IC)}</span></td><td><span class="missing-product-name">${esc(r.Product)}</span></td><td><span class="badge ${badge}">${esc(r.Type)}</span></td><td>${esc(r.PolicyNo)}</td><td class="trace-cell">${r.TraceID?`<a class="trace-link" target="_blank" href="${traceUrl(r.TraceID)}">${esc(r.TraceID)}</a>`:"—"}</td><td>₹${Number(r.Premium||0).toLocaleString()}</td></tr>`});
  h+="</tbody></table></div>";document.getElementById("missingTable").innerHTML=h;
 }
 function downloadSummaryPDF(){
