@@ -356,6 +356,20 @@ body:before{
 .company-name,.ic-name{color:#74f0c1!important;font-weight:800!important;letter-spacing:.1px}
 .table td:first-child .clickable,.table td:first-child{color:#74f0c1!important}
 </style>
+
+<style id="final-threshold-overrides">
+/* FINAL V3 visual rules only */
+.rate-zero{background:#123a2b!important;color:#8ff0bd!important}
+.rate-amber{background:#4a3612!important;color:#ffd166!important}
+.rate-red{background:#4a151b!important;color:#ff9aa8!important}
+.rate-dark-red{background:#2b0b10!important;color:#ff6b7a!important}
+/* Integration Pulse: same threshold rule for every integration card */
+.integration-kpi.rate-green{background:linear-gradient(145deg,#0d3a2a,#09261d)!important;border-color:#176044!important}
+.integration-kpi.rate-amber{background:linear-gradient(145deg,#4a3612,#2f250e)!important;border-color:#8a6a22!important}
+.integration-kpi.rate-red{background:linear-gradient(145deg,#4a151b,#2d0d12)!important;border-color:#87303a!important}
+/* Keep IC/company names highly readable everywhere */
+.clickable,.company-name,.ic-name{color:#79f2b0!important;font-weight:800!important}
+</style>
 </head>
 <body>
 <div class="v3-shell">
@@ -548,6 +562,27 @@ document.getElementById("circleView").addEventListener("change",function(){
  const table=document.getElementById("circleTable"),wrap=document.getElementById("circleChartWrap");
  if(this.value==="Donut"){table.style.display="none";wrap.style.display="block"}else{table.style.display="block";wrap.style.display="none"}
 });
+</script>
+
+<script id="final-visual-rules">
+(function(){
+  function pctNum(v){ const n=parseFloat(String(v).replace(/%/g,'')); return Number.isFinite(n)?n:0; }
+  window.applyFinalRateColor=function(el,value,mode){
+    if(!el) return;
+    const n=pctNum(value);
+    el.classList.remove('rate-good','rate-warn','rate-bad','rate-zero','rate-amber','rate-red','rate-dark-red','rate-green');
+    if(mode==='integration'){
+      if(n < 0.10) el.classList.add('rate-green');
+      else if(n <= 0.25) el.classList.add('rate-amber');
+      else el.classList.add('rate-red');
+    } else {
+      if(n === 0) el.classList.add('rate-zero');
+      else if(n <= 1) el.classList.add('rate-amber');
+      else if(n > 3) el.classList.add('rate-dark-red');
+      else el.classList.add('rate-red');
+    }
+  };
+})();
 </script>
 </body>
 </html>
