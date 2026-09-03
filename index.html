@@ -370,6 +370,22 @@ body:before{
 /* Keep IC/company names highly readable everywhere */
 .clickable,.company-name,.ic-name{color:#79f2b0!important;font-weight:800!important}
 </style>
+<style id="v3-final-visual-fix">
+/* Final visual-only threshold rules */
+.rate-good{background:#123a2b!important;color:#8ff0bd!important}
+.rate-warn{background:#4a3612!important;color:#ffd166!important}
+.rate-bad{background:#4a151b!important;color:#ff9aa8!important}
+.rate-critical{background:#2b0b10!important;color:#ff6b7a!important}
+.integration-kpi.rate-green{background:linear-gradient(145deg,#0d3a2a,#09261d)!important;border-color:#176044!important}
+.integration-kpi.rate-amber{background:linear-gradient(145deg,#4a3612,#2f250e)!important;border-color:#8a6a22!important}
+.integration-kpi.rate-red{background:linear-gradient(145deg,#4a151b,#2d0d12)!important;border-color:#87303a!important}
+.integration-kpi.rate-green .failure-value{color:#8ff0bd!important}
+.integration-kpi.rate-amber .failure-value{color:#ffd166!important}
+.integration-kpi.rate-red .failure-value{color:#ff9aa8!important}
+/* High-contrast IC/company names everywhere */
+.company-name,.ic-name,.clickable{color:#79f2b0!important;font-weight:800!important}
+.table td:first-child .clickable{color:#79f2b0!important}
+</style>
 </head>
 <body>
 <div class="v3-shell">
@@ -486,7 +502,8 @@ function renderIntegrationCards(rows){
  const cards=[{label:"API",key:"API",badge:"badge-api"},{label:"Loader",key:"Loader",badge:"badge-loader"},{label:"Affinity Total Policy",rows:apiLoader,badge:"badge-api"},{label:"Other LOB product",rows:otherLob,badge:"badge-unknown"}];
  box.innerHTML=cards.map(card=>{
   const all=card.rows||rows.filter(r=>r.integration===card.key),fail=all.filter(r=>!r.isSuccess),rate=all.length?fail.length/all.length*100:0;
-  return `<div class="integration-kpi"><div class="d-flex justify-content-between align-items-center mb-3"><b>${card.label}</b><span class="badge ${card.badge}">${all.length.toLocaleString()} total</span></div><div class="row g-2"><div class="col-4"><div class="metric-label">Total</div><div class="metric-value">${all.length.toLocaleString()}</div></div><div class="col-4"><div class="metric-label">Failed</div><div class="metric-value">${fail.length.toLocaleString()}</div></div><div class="col-4"><div class="metric-label">Failure %</div><div class="failure-value">${rate.toFixed(2)}%</div></div></div></div>`
+  const pulseClass = rate < 0.10 ? "rate-green" : (rate <= 0.25 ? "rate-amber" : "rate-red");
+  return `<div class="integration-kpi ${pulseClass}"><div class="d-flex justify-content-between align-items-center mb-3"><b>${card.label}</b><span class="badge ${card.badge}">${all.length.toLocaleString()} total</span></div><div class="row g-2"><div class="col-4"><div class="metric-label">Total</div><div class="metric-value">${all.length.toLocaleString()}</div></div><div class="col-4"><div class="metric-label">Failed</div><div class="metric-value">${fail.length.toLocaleString()}</div></div><div class="col-4"><div class="metric-label">Failure %</div><div class="failure-value">${rate.toFixed(2)}%</div></div></div></div>`
  }).join("")
 }
 function renderCompany(rows,total){
