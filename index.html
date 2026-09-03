@@ -73,13 +73,16 @@ h4{font-weight:750}
 .table-hover>tbody>tr:hover>*{background:#f2fbf8!important}
 .clickable{cursor:pointer;color:#087f78;text-decoration:none;font-weight:700}
 .clickable:hover{text-decoration:underline;color:#075e59}
-.rate-good{background:#dff5eb!important;color:#176b50}
-.rate-warn{background:#fff4d7!important;color:#8b6200}
-.rate-bad{background:#fde2e7!important;color:#9d2947}
+.rate-good{background:#dff5eb!important;color:#176b50!important}
+.rate-warn{background:#3b2b12!important;color:#ffbf5b!important}
+.rate-bad{background:#4a171d!important;color:#ff9aa8!important}
+.rate-critical{background:#28090d!important;color:#ff5c70!important;box-shadow:inset 3px 0 0 #a5001c}
 .badge-api{background:#1769d2!important}
 .badge-loader{background:#188653!important}
 .badge-unknown{background:#667085!important}
-.trace-link{color:#0d6efd;text-decoration:underline}
+.trace-link{color:#67d9ff;text-decoration:underline}
+.company-name,.ic-name{color:#74f0c1!important;font-weight:800!important;text-shadow:0 0 14px rgba(116,240,193,.16)}
+td .company-name,td .ic-name{color:#8af5cb!important}
 .chart-box{height:320px}
 .filter-row{display:flex;gap:10px;flex-wrap:wrap;align-items:center}
 .filter-row .form-select{max-width:230px}
@@ -348,6 +351,11 @@ body:before{
 }
 </style>
 
+<style id="v3-fix-overrides">
+/* V3.1 usability fixes: visual-only except PDF handlers */
+.company-name,.ic-name{color:#74f0c1!important;font-weight:800!important;letter-spacing:.1px}
+.table td:first-child .clickable,.table td:first-child{color:#74f0c1!important}
+</style>
 </head>
 <body>
 <div class="v3-shell">
@@ -435,7 +443,7 @@ function integrationType(r){
 }
 function cleanTraceId(value){const s=String(value??"").trim(),digits=s.match(/\d+/g);return digits?digits.join(""):""}
 function traceUrl(trace){const t=cleanTraceId(trace);if(!t)return TELESCOPE_BASE_URL;return TELESCOPE_BASE_URL+"?trace_id=%27"+encodeURIComponent(t)+"&tag="+encodeURIComponent(t)}
-function rateClass(rate){if(rate<=1)return"rate-good";if(rate<=5)return"rate-warn";return"rate-bad"}
+function rateClass(rate){if(rate===0)return"rate-good";if(rate>0&&rate<=1)return"rate-warn";if(rate>1&&rate<=3)return"rate-bad";return"rate-critical"}
 
 document.getElementById("file").addEventListener("change",e=>{
  const f=e.target.files[0];if(!f)return;const reader=new FileReader();
@@ -510,8 +518,20 @@ function renderMissingFiltered(){
  data.forEach(r=>{const badge=r.Type==="API"?"badge-api":r.Type==="Loader"?"badge-loader":"badge-unknown";h+=`<tr><td>${esc(r.IC)}</td><td>${esc(r.Product)}</td><td><span class="badge ${badge}">${esc(r.Type)}</span></td><td>${esc(r.PolicyNo)}</td><td class="trace-cell">${r.TraceID?`<a class="trace-link" target="_blank" href="${traceUrl(r.TraceID)}">${esc(r.TraceID)}</a>`:"—"}</td><td>₹${Number(r.Premium||0).toLocaleString()}</td></tr>`});
  h+="</tbody></table></div>";document.getElementById("missingTable").innerHTML=h;
 }
-function downloadSummaryPDF(){alert("Summary PDF functionality retained from the original dashboard.")}
-function downloadCompanyPDF(){alert("Company PDF functionality retained from the original dashboard.")}
+function downloadSummaryPDF(){
+ const {jsPDF}=window.jspdf,doc=new jsPDF({orientation:"landscape"});
+ doc.setFontSize(18);doc.text("Policy MIS Dashboard - Summary",14,16);
+ const total=currentRows.length,success=currentRows.filter(r=>r.isSuccess).length,failure=total-success,premium=currentRows.reduce((a,b)=>a+b.transaction_amount,0);
+ doc.autoTable({startY:24,head:[["Metric","Value"]],body:[["Total Policies",total],["Success",success],["Failure",failure],["Premium","₹"+premium.toLocaleString()]]});
+ doc.save("Policy_MIS_Summary.pdf");
+}
+function downloadCompanyPDF(){
+ const {jsPDF}=window.jspdf,doc=new jsPDF({orientation:"landscape"});
+ doc.setFontSize(18);doc.text("Policy MIS Dashboard - IC Summary",14,16);
+ const body=Object.entries(companyData).map(([k,v])=>[k,v.t,v.s,v.f,(v.t?v.f/v.t*100:0).toFixed(2)+"%","₹"+Number(v.p||0).toLocaleString()]);
+ doc.autoTable({startY:24,head:[["IC / Company","Total","Success","Failure","Failure %","Premium"]],body});
+ doc.save("Policy_MIS_IC_Summary.pdf");
+}
 function downloadMissingPDF(type){
  const data=currentMissing.filter(r=>(!type||r.Type===type)&&(!document.getElementById("missingIcFilter").value||r.IC===document.getElementById("missingIcFilter").value));
  if(!data.length){alert("No missing policies found for the selected criteria.");return}
