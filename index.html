@@ -531,7 +531,7 @@ function renderIntegrationCards(rows){
 function renderCompany(rows,total){
  companyData={};rows.forEach(r=>{const c=r.company_name;if(!companyData[c])companyData[c]={t:0,s:0,f:0,p:0,types:{API:0,Loader:0,"Not Sure":0}};companyData[c].t++;if(r.isSuccess)companyData[c].s++;else companyData[c].f++;companyData[c].p+=r.transaction_amount;companyData[c].types[r.integration]++});
  let html=`<div class="table-responsive"><table class="table table-bordered table-striped align-middle"><thead><tr><th>IC / Company</th><th>Total</th><th>Success</th><th>Failure</th><th>Failure %</th><th>Premium</th><th>Integration</th></tr></thead><tbody>`;
- Object.entries(companyData).sort((a,b)=>b[1].t-a[1].t).forEach(([k,v])=>{const rate=v.t?v.f/v.t*100:0;html+=`<tr><td><a class="clickable" href="#" onclick="showProducts('${esc(k).replace(/'/g,"&#39;")}');return false">${esc(k)}</a></td><td>${v.t}</td><td>${v.s}</td><td>${v.f}</td><td class="${rateClass(rate)}"><b>${rate.toFixed(2)}%</b></td><td>₹${v.p.toLocaleString()}</td><td><span class="badge badge-api me-1">API ${v.types.API}</span><span class="badge badge-loader me-1">Loader ${v.types.Loader}</span><span class="badge badge-unknown">Not Sure ${v.types["Not Sure"]}</span></td></tr>`});
+ Object.entries(companyData).sort((a,b)=>b[1].t-a[1].t).forEach(([k,v])=>{const rate=v.t?v.f/v.t*100:0;const rateStyle = rate===0 ? "background:#123a2b!important;color:#8ff0bd!important" : (rate<=1 ? "background:#4a3612!important;color:#ffd166!important" : (rate>3 ? "background:#2b0b10!important;color:#ff6b7a!important" : "background:#4a151b!important;color:#ff9aa8!important")); html+=`<tr><td><a class="clickable" href="#" onclick="showProducts('${esc(k).replace(/'/g,"&#39;")}');return false">${esc(k)}</a></td><td>${v.t}</td><td>${v.s}</td><td>${v.f}</td><td class="${rateClass(rate)}" style="${rateStyle}"><b>${rate.toFixed(2)}%</b></td><td>₹${v.p.toLocaleString()}</td><td><span class="badge badge-api me-1">API ${v.types.API}</span><span class="badge badge-loader me-1">Loader ${v.types.Loader}</span><span class="badge badge-unknown">Not Sure ${v.types["Not Sure"]}</span></td></tr>`});
  html+="</tbody></table></div>";document.getElementById("companyTable").innerHTML=html;
  if(companyChart)companyChart.destroy();const labels=Object.keys(companyData);
  companyChart=new Chart(document.getElementById("companyChart"),{type:"doughnut",data:{labels,datasets:[{data:labels.map(x=>companyData[x].t),backgroundColor:CHART_COLORS,borderWidth:2}]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{position:"right"}}}});
@@ -603,6 +603,9 @@ document.getElementById("circleView").addEventListener("change",function(){
 });
 </script>
 
+<style id="company-rate-inline-backup">
+/* Final Company/IC rate treatment: inline styles are emitted by renderCompany. */
+</style>
 <script id="final-visual-rules">
 (function(){
   function pctNum(v){ const n=parseFloat(String(v).replace(/%/g,'')); return Number.isFinite(n)?n:0; }
