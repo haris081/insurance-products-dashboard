@@ -567,17 +567,36 @@ function renderMissing(rows){
 }
 function renderMissingFiltered(){
  const ic=document.getElementById("missingIcFilter").value,type=document.getElementById("missingTypeFilter").value;
- const data=currentMissing.filter(r=>(!ic||r.IC===ic)&&(!type||r.Type===type)).sort((a,b)=>{
+ const data=currentMissing.filter(r=>(!ic||r.IC===ic)&&(!type||r.Type===type));
+ document.getElementById("missingTotal").textContent=data.length.toLocaleString();
+ if(!data.length){document.getElementById("missingTable").innerHTML='<div class="empty">No missing policies found for the selected filters.</div>';return}
+
+ // Group failed records into one row per IC + Product + Type while retaining every
+ // individual policy/trace ID and summing the premium for the combination.
+ const groups={};
+ data.forEach(r=>{
+  const key=`${r.IC}\u0000${r.Product}\u0000${r.Type}`;
+  if(!groups[key])groups[key]={IC:r.IC,Product:r.Product,Type:r.Type,Policies:[],Traces:[],Premium:0};
+  const g=groups[key];
+  if(r.PolicyNo!==undefined&&r.PolicyNo!==null&&String(r.PolicyNo)!=="")g.Policies.push(String(r.PolicyNo));
+  if(r.TraceID!==undefined&&r.TraceID!==null&&String(r.TraceID)!=="")g.Traces.push(String(r.TraceID));
+  g.Premium+=Number(r.Premium||0);
+ });
+ const grouped=Object.values(groups).sort((a,b)=>{
   const icCmp=String(a.IC).localeCompare(String(b.IC),undefined,{sensitivity:"base"});
   if(icCmp!==0)return icCmp;
   const productCmp=String(a.Product).localeCompare(String(b.Product),undefined,{sensitivity:"base"});
   if(productCmp!==0)return productCmp;
-  return String(a.TraceID).localeCompare(String(b.TraceID),undefined,{numeric:true,sensitivity:"base"});
+  return String(a.Type).localeCompare(String(b.Type),undefined,{sensitivity:"base"});
  });
- document.getElementById("missingTotal").textContent=data.length.toLocaleString();
- if(!data.length){document.getElementById("missingTable").innerHTML='<div class="empty">No missing policies found for the selected filters.</div>';return}
+
  let h=`<div class="table-responsive"><table class="table table-bordered table-striped align-middle"><thead><tr><th>IC / Company</th><th>Product</th><th>Type</th><th>Policy No.</th><th>Trace ID</th><th>Premium</th></tr></thead><tbody>`;
- data.forEach(r=>{const badge=r.Type==="API"?"badge-api":r.Type==="Loader"?"badge-loader":"badge-unknown";h+=`<tr><td><span class="missing-ic-name">${esc(r.IC)}</span></td><td><span class="missing-product-name">${esc(r.Product)}</span></td><td><span class="badge ${badge}">${esc(r.Type)}</span></td><td>${esc(r.PolicyNo)}</td><td class="trace-cell">${r.TraceID?`<a class="trace-link" target="_blank" href="${traceUrl(r.TraceID)}">${esc(r.TraceID)}</a>`:"—"}</td><td>₹${Number(r.Premium||0).toLocaleString()}</td></tr>`});
+ grouped.forEach(g=>{
+  const badge=g.Type==="API"?"badge-api":g.Type==="Loader"?"badge-loader":"badge-unknown";
+  const policies=g.Policies.length?g.Policies.map(x=>`<div>${esc(x)}</div>`).join(""):"—";
+  const traces=g.Traces.length?g.Traces.map(x=>`<div><a class="trace-link" target="_blank" href="${traceUrl(x)}">${esc(x)}</a></div>`).join(""):"—";
+  h+=`<tr><td><span class="missing-ic-name">${esc(g.IC)}</span></td><td><span class="missing-product-name">${esc(g.Product)}</span></td><td><span class="badge ${badge}">${esc(g.Type)}</span></td><td>${policies}</td><td class="trace-cell">${traces}</td><td>₹${g.Premium.toLocaleString()}</td></tr>`;
+ });
  h+="</tbody></table></div>";document.getElementById("missingTable").innerHTML=h;
 }
 function downloadSummaryPDF(){
