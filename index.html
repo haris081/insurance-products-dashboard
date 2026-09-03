@@ -386,6 +386,23 @@ body:before{
 .company-name,.ic-name,.clickable{color:#79f2b0!important;font-weight:800!important}
 .table td:first-child .clickable{color:#79f2b0!important}
 </style>
+
+<style id="v3-final-micro-fixes">
+/* Final micro-fixes: resolve table-striping precedence and Product Summary title contrast */
+.table tbody td.rate-zero,.table tbody td.rate-amber,.table tbody td.rate-red,.table tbody td.rate-dark-red,
+.table-striped>tbody>tr>td.rate-zero,.table-striped>tbody>tr>td.rate-amber,.table-striped>tbody>tr>td.rate-red,.table-striped>tbody>tr>td.rate-dark-red{
+  color:inherit!important;
+}
+.table tbody td.rate-zero,.table-striped>tbody>tr>td.rate-zero{background:#123a2b!important;color:#8ff0bd!important}
+.table tbody td.rate-amber,.table-striped>tbody>tr>td.rate-amber{background:#4a3612!important;color:#ffd166!important}
+.table tbody td.rate-red,.table-striped>tbody>tr>td.rate-red{background:#4a151b!important;color:#ff9aa8!important}
+.table tbody td.rate-dark-red,.table-striped>tbody>tr>td.rate-dark-red{background:#2b0b10!important;color:#ff6b7a!important}
+.drill-host .card h5,.drill-host h5{
+  color:#79f2b0!important;
+  font-weight:800!important;
+  text-shadow:0 0 18px rgba(121,242,176,.10);
+}
+</style>
 </head>
 <body>
 <div class="v3-shell">
