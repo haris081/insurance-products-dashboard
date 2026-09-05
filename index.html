@@ -24,7 +24,13 @@
 .empty{padding:20px;text-align:center;color:var(--muted)}#companyChartWrap,#circleChartWrap{height:310px}
 #pdfRenameModal{display:none;position:fixed;inset:0;background:rgba(15,27,24,.42);z-index:9999;align-items:center;justify-content:center;padding:20px}.pdf-modal-card{width:min(650px,100%);background:#fff;border-radius:18px;padding:23px;box-shadow:0 30px 100px rgba(0,0,0,.2);border:1px solid var(--line)}.pdf-drop{display:block;border:1.5px dashed #8bcfc1;border-radius:14px;padding:26px;text-align:center;background:#f7fbfa;cursor:pointer}.pdf-drop input{display:none}.pdf-drop strong{display:block;color:#176b62}.pdf-drop span{font-size:11px;color:var(--muted)}
 @media(max-width:900px){.grid2{grid-template-columns:1fr}.kpis{grid-template-columns:repeat(2,1fr)}.hero{align-items:flex-start;flex-direction:column}}@media(max-width:600px){.topbar{align-items:flex-start;flex-direction:column}.actions{width:100%}.btnx{flex:1}.shell{padding:20px 12px 40px}.kpis{grid-template-columns:1fr}.integration-kpi-grid{grid-template-columns:1fr}.hero h1{letter-spacing:-2px}}
-</style></head><body>
+</style><style id="final-responsive-fixes">
+.kpis{grid-template-columns:repeat(4,minmax(210px,1fr))}
+.kpi{min-width:0;overflow:hidden}.kpi h3{white-space:nowrap;word-break:keep-all;font-variant-numeric:tabular-nums}
+@media(max-width:1100px){.kpis{grid-template-columns:repeat(2,minmax(210px,1fr))}}
+@media(max-width:560px){.kpis{grid-template-columns:1fr}.kpi h3{font-size:25px}}
+</style>
+</head><body>
 <header class="topbar"><div class="brand"><div class="logo">P</div><div><b>Policy MIS</b><small>Operations Intelligence Hub</small></div></div>
 <div class="actions">
 <label class="btnx primary" for="file">↑ Upload MIS<input id="file" type="file" accept=".xlsx,.xls,.csv" style="display:none"></label>
@@ -32,16 +38,16 @@
 <button class="btnx" onclick="downloadSummaryPDF()">↓ Download MIS</button>
 </div></header>
 <main class="shell">
-<section class="hero"><div><div class="eyebrow">CONTROL CENTER / POLICY OPERATIONS</div><h1>Policy performance.<br><span>Clear at a glance.</span></h1><p>Upload your MIS, inspect policy outcomes, trace integration health, drill into companies and circles, and isolate missing policies.</p></div><div class="status"><b id="workspaceStatus">Workspace ready</b><small id="workspaceHint">Upload a policy MIS file to populate the dashboard.</small></div></section>
+<section class="hero"><div><div class="eyebrow">CONTROL CENTER / POLICY OPERATIONS</div><h1>Policy performance.<br><span>Clear at a glance.</span></h1><p>Upload MIS  →  Inspect policy outcomes  →  Trace integration health  →  Drill into companies and circles  →  Isolate missing policies  →  Close the gaps.</p></div><div class="status"><b id="workspaceStatus">Workspace ready</b><small id="workspaceHint">Upload a policy MIS file to populate the dashboard.</small></div></section>
 <section class="section"><div class="section-title"><h2>Executive signals</h2><small>Live from uploaded MIS</small></div><div id="cards" class="kpis"></div></section>
 <section class="section grid2"><article class="panel"><div class="data-head"><div><h3>Company distribution</h3><p>Portfolio volume by insurance company.</p></div><button class="btnx" onclick="downloadCompanyPDF()">↓ Download</button></div><div class="chart"><canvas id="companyChart"></canvas></div></article><article class="panel"><div><h3>Integration pulse</h3><p>Failure percentage by integration path.</p></div><div id="integrationCards" class="integration-kpi-grid"></div></article></section>
 <section class="panel data"><div class="data-head"><div><h3>Company / IC intelligence</h3><p>Click a company for product-level movement.</p></div><div class="controls"><select id="companyView"><option>Table</option><option>Donut</option></select><button class="btnx" onclick="downloadCompanyPDF()">Export IC PDF</button></div></div><div id="companyTable" class="host"></div><div id="companyChartWrap" style="display:none"><canvas id="companyChart2"></canvas></div><div id="productSummary" class="drill-host"></div></section>
 <section class="panel data"><div class="data-head"><div><h3>Circle intelligence</h3><p>Regional performance with branch-level drilldown.</p></div><div class="controls"><select id="circleView"><option>Table</option><option>Donut</option></select></div></div><div id="circleTable" class="host"></div><div id="circleChartWrap" style="display:none"><canvas id="circleChart2"></canvas></div></section>
-<section class="missing"><div class="missing-head"><div><h3>Missing policies</h3><p>Filter, inspect and export unresolved policies.</p></div><div class="missing-counter"><span id="missingTotal">0</span><small>OPEN EXCEPTIONS</small></div></div><div class="filter-deck"><b style="font-size:9px;letter-spacing:1px;color:#718096">FILTER</b><select id="missingIcFilter"><option value="">All ICs</option></select><select id="missingTypeFilter"><option value="">All Types</option><option value="API">API</option><option value="Loader">Loader</option><option value="Not Sure">Not Sure</option></select><button class="btnx primary" onclick="downloadMissing()">Download CSV ↓</button></div><div class="export-rail"><button onclick="downloadMissing('API')">API Missing</button><button onclick="downloadMissing('Loader')">Loader Missing</button><button onclick="downloadMissing('Not Sure')">Not Sure</button><button onclick="downloadMissing()">All Missing</button></div><div id="mappingNotice" class="alert alert-warning mt-3 d-none"></div><div id="missingTable" class="host"></div></section>
+<section class="missing"><div class="missing-head"><div><h3>Missing policies</h3><p>Filter, inspect and export unresolved policies.</p></div><div class="missing-counter"><span id="missingTotal">0</span><small>OPEN EXCEPTIONS</small></div></div><div class="filter-deck"><b style="font-size:9px;letter-spacing:1px;color:#718096">FILTER</b><select id="missingIcFilter"><option value="">All ICs</option></select><select id="missingTypeFilter"><option value="">All Types</option><option value="API">API</option><option value="Loader">Loader</option><option value="Other LOB">Other LOB</option><option value="Not Sure">Not Sure</option></select><button class="btnx primary" onclick="downloadMissing()">Download CSV ↓</button></div><div class="export-rail"><button onclick="downloadMissing('API')">API Missing</button><button onclick="downloadMissing('Loader')">Loader Missing</button><button onclick="downloadMissing('Other LOB')">Other LOB</button><button onclick="downloadMissing('Not Sure')">Not Sure</button><button onclick="downloadMissing()">All Missing</button></div><div id="mappingNotice" class="alert alert-warning mt-3 d-none"></div><div id="missingTable" class="host"></div></section>
 </main>
 <div id="pdfRenameModal"><div class="pdf-modal-card">
 <div class="d-flex justify-content-between align-items-start gap-3"><div><h3>Bulk PDF Name Changer</h3><p class="mb-0">Only filenames are changed. PDFs are copied as-is; their contents are never opened or modified.</p></div><button class="btnx" onclick="closePdfRename()">Close</button></div>
-<label class="small-muted mt-3 d-block" for="pdfBaseName">Starting file name</label><input id="pdfBaseName" class="form-control mt-1" placeholder="e.g. Chat GPT">
+<label class="small-muted mt-3 d-block" for="pdfBaseName">Starting file name</label><input id="pdfBaseName" class="form-control mt-1" placeholder="e.g. EDME">
 <label class="pdf-drop mt-3" for="pdfBulkInput"><input id="pdfBulkInput" type="file" accept="application/pdf,.pdf" multiple><strong>Choose or paste multiple PDFs</strong><span id="pdfBulkCount">No PDFs selected</span></label>
 <div id="pdfBulkStatus" class="small text-secondary mt-2" style="min-height:18px"></div>
 <div class="d-flex justify-content-end gap-2 mt-3"><button class="btnx" onclick="clearPdfRename()">Clear</button><button class="btnx primary" onclick="processPdfRename()">Process & Download ZIP ↓</button></div>
@@ -75,6 +81,7 @@ function integrationType(r){
   const ic=String(r.company_name||"Unknown").trim(),product=String(r.section||"Unknown").trim();
   const direct=MASTER_MAPPING[ic];
   if(direct&&direct[product])return direct[product];
+  if(new Set(["bike","car","health","life"]).has(product.toLowerCase()))return "Other LOB";
   return "Not Sure";
 }
 function cleanTraceId(value){const s=String(value??"").trim(),digits=s.match(/\d+/g);return digits?digits.join(""):""}
@@ -82,9 +89,21 @@ function traceUrl(trace){const t=cleanTraceId(trace);if(!t)return TELESCOPE_BASE
 function rateClass(rate){if(rate===0)return"rate-good";if(rate>0&&rate<=1)return"rate-warn";if(rate>1&&rate<=3)return"rate-bad";return"rate-critical"}
 
 document.getElementById("file").addEventListener("change",e=>{
- const f=e.target.files[0];if(!f)return;const reader=new FileReader();
- reader.onload=ev=>{const data=new Uint8Array(ev.target.result),wb=XLSX.read(data,{type:"array"}),ws=wb.Sheets[wb.SheetNames[0]],rows=XLSX.utils.sheet_to_json(ws,{defval:""});process(rows)};
- reader.readAsArrayBuffer(f)
+  const f=e.target.files[0];if(!f)return;
+  const overlay=document.getElementById("misProcessingOverlay"),step=document.getElementById("misLoaderStep");
+  const steps=["Uploading data…","Reading MIS file…","Calculating results…","Building policy insights…","Rendering dashboard…"];
+  let i=0;overlay.style.display="flex";step.textContent=steps[0];
+  const timer=setInterval(()=>{i=Math.min(i+1,steps.length-1);step.textContent=steps[i]},700);
+  const reader=new FileReader();
+  reader.onload=ev=>requestAnimationFrame(()=>{
+    try{
+      const data=new Uint8Array(ev.target.result),wb=XLSX.read(data,{type:"array"}),ws=wb.Sheets[wb.SheetNames[0]],rows=XLSX.utils.sheet_to_json(ws,{defval:""});
+      process(rows);step.textContent="Dashboard ready ✓";
+      setTimeout(()=>{clearInterval(timer);overlay.style.display="none"},350);
+    }catch(err){clearInterval(timer);overlay.style.display="none";console.error(err);alert("Unable to process the MIS file. Please check the file and try again.")}
+  });
+  reader.onerror=()=>{clearInterval(timer);overlay.style.display="none";alert("Unable to read the MIS file.")};
+  reader.readAsArrayBuffer(f)
 });
 function process(rows){
  rows.forEach(r=>{
@@ -232,4 +251,18 @@ document.getElementById("circleView").addEventListener("change",function(){
   };
 })();
 </script>
+<style id="mis-processing-loader">
+#misProcessingOverlay{display:none;position:fixed;inset:0;z-index:10000;background:rgba(244,247,246,.88);backdrop-filter:blur(8px);align-items:center;justify-content:center;padding:24px}
+.mis-loader-card{width:min(470px,100%);background:#fff;border:1px solid #dce7e3;border-radius:20px;padding:30px;text-align:center;box-shadow:0 30px 100px rgba(20,60,40,.16)}
+.mis-loader-mark{width:58px;height:58px;margin:0 auto 18px;border-radius:50%;border:4px solid #dcefe9;border-top-color:#087f78;animation:misLoaderSpin .9s linear infinite}
+.mis-loader-card h3{margin:0;color:#14221f;font-size:20px}.mis-loader-card p{margin:7px 0 18px;color:#71817d;font-size:12px}
+.mis-loader-track{height:5px;background:#edf4f2;border-radius:99px;overflow:hidden}.mis-loader-bar{height:100%;width:35%;background:linear-gradient(90deg,#20c997,#087f78,#168aad);border-radius:99px;animation:misLoaderProgress 2s ease-in-out infinite}
+.mis-loader-step{margin-top:14px;font-size:11px;font-weight:800;color:#087f78;min-height:17px}.mis-loader-note{margin-top:7px;font-size:9px;color:#9aa7a3}
+@keyframes misLoaderSpin{to{transform:rotate(360deg)}}@keyframes misLoaderProgress{0%{transform:translateX(-120%);width:28%}50%{width:55%}100%{transform:translateX(210%);width:28%}}
+</style>
+<div id="misProcessingOverlay" aria-live="polite" aria-busy="true"><div class="mis-loader-card">
+<div class="mis-loader-mark"></div><h3>Processing your MIS</h3><p>Please wait while we prepare your dashboard.</p>
+<div class="mis-loader-track"><div class="mis-loader-bar"></div></div>
+<div id="misLoaderStep" class="mis-loader-step">Uploading data…</div><div class="mis-loader-note">Large files may take a little longer.</div>
+</div></div>
 </body></html>
