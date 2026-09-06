@@ -34,6 +34,7 @@
 <header class="topbar"><div class="brand"><div class="logo">P</div><div><b>Policy MIS</b><small>Operations Intelligence Hub</small></div></div>
 <div class="actions">
 <label class="btnx primary" for="file">↑ Upload MIS<input id="file" type="file" accept=".xlsx,.xls,.csv" style="display:none"></label>
+<label class="btnx primary" for="bookingPendingFile">↑ Upload Booking Pending MIS<input id="bookingPendingFile" type="file" accept=".xlsx,.xls,.csv" style="display:none"></label>
 <button class="btnx primary" onclick="openPdfRename()">▣ Bulk PDF Name Changer</button>
 <button class="btnx" onclick="downloadSummaryPDF()">↓ Download MIS</button>
 </div></header>
@@ -53,10 +54,99 @@
 <div class="d-flex justify-content-end gap-2 mt-3"><button class="btnx" onclick="clearPdfRename()">Clear</button><button class="btnx primary" onclick="processPdfRename()">Process & Download ZIP ↓</button></div>
 </div></div>
 <script>
+(function(){
+  const bookingInput=document.getElementById("bookingPendingFile");
+  if(!bookingInput)return;
+
+  function setStep(text){document.getElementById("bookingPendingStep").textContent=text}
+  function downloadBlob(blob,name){
+    const u=URL.createObjectURL(blob),a=document.createElement("a");
+    a.href=u;a.download=name;document.body.appendChild(a);a.click();a.remove();
+    setTimeout(()=>URL.revokeObjectURL(u),1000);
+  }
+  function cleanTraceForExport(value){
+    const s=String(value??"").trim(),digits=s.match(/\d+/g);
+    return digits?digits.join(""):"";
+  }
+  function classifyBookingRow(r){
+    const ic=String(r.company_name||"Unknown").trim();
+    const product=String(r.section||"Unknown").trim();
+    const direct=MASTER_MAPPING[ic];
+    if(direct&&direct[product])return direct[product];
+    if(new Set(["bike","car","health","life"]).has(product.toLowerCase()))return "Other LOB";
+    return "Not Sure";
+  }
+
+  bookingInput.addEventListener("change",function(e){
+    const f=e.target.files[0]; if(!f)return;
+    const overlay=document.getElementById("bookingPendingOverlay");
+    overlay.style.display="flex";
+    setStep("Uploading data…");
+
+    const reader=new FileReader();
+    reader.onload=function(ev){
+      try{
+        setStep("Reading Booking Pending MIS…");
+        const data=new Uint8Array(ev.target.result);
+        const wb=XLSX.read(data,{type:"array"});
+        const ws=wb.Sheets[wb.SheetNames[0]];
+        const rows=XLSX.utils.sheet_to_json(ws,{defval:""});
+
+        setStep("Classifying API and Loader…");
+        rows.forEach(r=>{r.integration=classifyBookingRow(r)});
+
+        const apiRows=rows.filter(r=>r.integration==="API");
+        const classifiedRows=rows.map(r=>{
+          const copy={...r};
+          copy["Integration Type"]=r.integration;
+          delete copy.integration;
+          return copy;
+        });
+
+        setStep("Generating classified Excel…");
+        const classifiedWs=XLSX.utils.json_to_sheet(classifiedRows);
+        const classifiedWb=XLSX.utils.book_new();
+        XLSX.utils.book_append_sheet(classifiedWb,classifiedWs,"Booking Pending");
+        const classifiedOut=XLSX.write(classifiedWb,{bookType:"xlsx",type:"array"});
+        downloadBlob(
+          new Blob([classifiedOut],{type:"application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"}),
+          "Booking_Pending_API_Loader_Classified.xlsx"
+        );
+
+        setStep(`Generating API Trace ID file — ${apiRows.length} API records…`);
+        const traceRows=apiRows.map(r=>({TraceID:cleanTraceForExport(r.trace_id)}));
+        const traceWs=XLSX.utils.json_to_sheet(traceRows);
+        const traceWb=XLSX.utils.book_new();
+        XLSX.utils.book_append_sheet(traceWb,traceWs,"API Trace IDs");
+        const traceOut=XLSX.write(traceWb,{bookType:"xlsx",type:"array"});
+        downloadBlob(
+          new Blob([traceOut],{type:"application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"}),
+          "Booking_Pending_API_Trace_IDs.xlsx"
+        );
+
+        setStep(`Done ✓ ${apiRows.length} API / ${rows.length-apiRows.length} non-API`);
+        setTimeout(()=>{overlay.style.display="none";bookingInput.value=""},700);
+      }catch(err){
+        console.error(err);
+        overlay.style.display="none";
+        bookingInput.value="";
+        alert("Unable to process the Booking Pending MIS. Please check the file and try again.");
+      }
+    };
+    reader.onerror=function(){
+      overlay.style.display="none";
+      bookingInput.value="";
+      alert("Unable to read the Booking Pending MIS file.");
+    };
+    reader.readAsArrayBuffer(f);
+  });
+})();
+</script>
+<script>
 let pdfFiles=[];
 function setPdfFiles(files){pdfFiles=Array.from(files||[]).filter(f=>f.type==="application/pdf"||/\.pdf$/i.test(f.name));document.getElementById("pdfBulkCount").textContent=pdfFiles.length?`${pdfFiles.length} PDF${pdfFiles.length===1?"":"s"} selected`:"No PDFs selected";document.getElementById("pdfBulkStatus").textContent=pdfFiles.length?"Ready. Files will be renamed in the order selected.":""}
 function openPdfRename(){document.getElementById("pdfRenameModal").style.display="flex"}function closePdfRename(){document.getElementById("pdfRenameModal").style.display="none"}function clearPdfRename(){pdfFiles=[];document.getElementById("pdfBulkInput").value="";document.getElementById("pdfBaseName").value="";document.getElementById("pdfBulkCount").textContent="No PDFs selected";document.getElementById("pdfBulkStatus").textContent=""}
-async function processPdfRename(){const base=document.getElementById("pdfBaseName").value.trim(),s=document.getElementById("pdfBulkStatus");if(!base){alert("Please enter the starting file name.");return}if(!pdfFiles.length){alert("Please select or paste at least one PDF.");return}const safe=base.replace(/[\\/:*?"<>|]/g,"_").trim();if(!safe){alert("Please enter a valid starting file name.");return}s.textContent="Creating ZIP…";const zip=new JSZip();pdfFiles.forEach((f,i)=>zip.file(`${safe}${i+1}.pdf`,f));const blob=await zip.generateAsync({type:"blob",compression:"STORE"}),u=URL.createObjectURL(blob),a=document.createElement("a");a.href=u;a.download=`${safe}_Renamed_PDFs.zip`;document.body.appendChild(a);a.click();a.remove();URL.revokeObjectURL(u);s.textContent=`Done — ${pdfFiles.length} PDF${pdfFiles.length===1?"":"s"} renamed and zipped.`}
+async function processPdfRename(){const base=document.getElementById("pdfBaseName").value.trim(),s=document.getElementById("pdfBulkStatus");if(!base){alert("Please enter the starting file name.");return}if(!pdfFiles.length){alert("Please select or paste at least one PDF.");return}const safe=base.replace(/[\\/:*?"<>|]/g,"_").trim();if(!safe){alert("Please enter a valid starting file name.");return}s.textContent="Creating ZIP…";const zip=new JSZip();pdfFiles.forEach((f,i)=>zip.file(`${safe} ${i+1}.pdf`,f));const blob=await zip.generateAsync({type:"blob",compression:"STORE"}),u=URL.createObjectURL(blob),a=document.createElement("a");a.href=u;a.download=`${safe}_Renamed_PDFs.zip`;document.body.appendChild(a);a.click();a.remove();URL.revokeObjectURL(u);s.textContent=`Done — ${pdfFiles.length} PDF${pdfFiles.length===1?"":"s"} renamed and zipped.`}
 document.addEventListener("DOMContentLoaded",()=>{document.getElementById("pdfBulkInput").addEventListener("change",e=>setPdfFiles(e.target.files));document.getElementById("pdfRenameModal").addEventListener("click",e=>{if(e.target.id==="pdfRenameModal")closePdfRename()});document.addEventListener("paste",e=>{if(document.getElementById("pdfRenameModal").style.display!=="flex")return;const f=Array.from(e.clipboardData?.items||[]).map(i=>i.kind==="file"?i.getAsFile():null).filter(Boolean);if(f.length)setPdfFiles(f)})});
 </script>
 
@@ -251,6 +341,15 @@ document.getElementById("circleView").addEventListener("change",function(){
   };
 })();
 </script>
+<style id="booking-pending-loader">
+#bookingPendingOverlay{display:none;position:fixed;inset:0;z-index:10001;background:rgba(244,247,246,.88);backdrop-filter:blur(8px);align-items:center;justify-content:center;padding:24px}
+.booking-pending-card{width:min(470px,100%);background:#fff;border:1px solid #dce7e3;border-radius:20px;padding:30px;text-align:center;box-shadow:0 30px 100px rgba(20,60,40,.16)}
+.booking-pending-mark{width:58px;height:58px;margin:0 auto 18px;border-radius:50%;border:4px solid #dcefe9;border-top-color:#087f78;animation:bookingPendingSpin .9s linear infinite}
+.booking-pending-card h3{margin:0;color:#14221f;font-size:20px}.booking-pending-card p{margin:7px 0 18px;color:#71817d;font-size:12px}
+.booking-pending-track{height:5px;background:#edf4f2;border-radius:99px;overflow:hidden}.booking-pending-bar{height:100%;width:35%;background:linear-gradient(90deg,#20c997,#087f78,#168aad);border-radius:99px;animation:bookingPendingProgress 2s ease-in-out infinite}
+.booking-pending-step{margin-top:14px;font-size:11px;font-weight:800;color:#087f78;min-height:17px}.booking-pending-note{margin-top:7px;font-size:9px;color:#9aa7a3}
+@keyframes bookingPendingSpin{to{transform:rotate(360deg)}}@keyframes bookingPendingProgress{0%{transform:translateX(-120%);width:28%}50%{width:55%}100%{transform:translateX(210%);width:28%}}
+</style>
 <style id="mis-processing-loader">
 #misProcessingOverlay{display:none;position:fixed;inset:0;z-index:10000;background:rgba(244,247,246,.88);backdrop-filter:blur(8px);align-items:center;justify-content:center;padding:24px}
 .mis-loader-card{width:min(470px,100%);background:#fff;border:1px solid #dce7e3;border-radius:20px;padding:30px;text-align:center;box-shadow:0 30px 100px rgba(20,60,40,.16)}
@@ -260,6 +359,11 @@ document.getElementById("circleView").addEventListener("change",function(){
 .mis-loader-step{margin-top:14px;font-size:11px;font-weight:800;color:#087f78;min-height:17px}.mis-loader-note{margin-top:7px;font-size:9px;color:#9aa7a3}
 @keyframes misLoaderSpin{to{transform:rotate(360deg)}}@keyframes misLoaderProgress{0%{transform:translateX(-120%);width:28%}50%{width:55%}100%{transform:translateX(210%);width:28%}}
 </style>
+<div id="bookingPendingOverlay" aria-live="polite" aria-busy="true"><div class="booking-pending-card">
+<div class="booking-pending-mark"></div><h3>Processing Booking Pending MIS</h3><p>Classifying API and Loader records and preparing your files.</p>
+<div class="booking-pending-track"><div class="booking-pending-bar"></div></div>
+<div id="bookingPendingStep" class="booking-pending-step">Uploading data…</div><div class="booking-pending-note">Please wait while the two output files are generated.</div>
+</div></div>
 <div id="misProcessingOverlay" aria-live="polite" aria-busy="true"><div class="mis-loader-card">
 <div class="mis-loader-mark"></div><h3>Processing your MIS</h3><p>Please wait while we prepare your dashboard.</p>
 <div class="mis-loader-track"><div class="mis-loader-bar"></div></div>
