@@ -361,11 +361,63 @@ function downloadSummaryPDF(){
  doc.save("Policy_MIS_Summary.pdf");
 }
 function downloadCompanyPDF(){
- const {jsPDF}=window.jspdf,doc=new jsPDF({orientation:"landscape"});
- doc.setFontSize(18);doc.text("Policy MIS Dashboard - IC Summary",14,16);
- const body=Object.entries(companyData).map(([k,v])=>[k,v.t,v.s,v.f,(v.t?v.f/v.t*100:0).toFixed(2)+"%","₹"+Number(v.p||0).toLocaleString()]);
- doc.autoTable({startY:24,head:[["IC / Company","Total","Success","Failure","Failure %","Premium"]],body});
- doc.save("Policy_MIS_IC_Summary.pdf");
+  const {jsPDF}=window.jspdf,doc=new jsPDF({orientation:"landscape"});
+  doc.setFontSize(18);
+  doc.text("Policy MIS Dashboard - IC & Product Summary",14,16);
+
+  const rows=[];
+  Object.entries(companyData)
+    .sort((a,b)=>b[1].t-a[1].t)
+    .forEach(([ic,v])=>{
+      const icRows=currentRows.filter(r=>r.company_name===ic);
+      const products={};
+
+      icRows.forEach(r=>{
+        const product=String(r.section||"Unknown").trim();
+        if(!products[product]) products[product]={t:0,s:0,f:0,p:0};
+        products[product].t++;
+        if(r.isSuccess) products[product].s++;
+        else products[product].f++;
+        products[product].p+=Number(r.transaction_amount||0);
+      });
+
+      rows.push([
+        ic,
+        v.t,
+        v.s,
+        v.f,
+        (v.t?v.f/v.t*100:0).toFixed(2)+"%",
+        "₹"+Number(v.p||0).toLocaleString()
+      ]);
+
+      Object.entries(products)
+        .sort((a,b)=>b[1].t-a[1].t)
+        .forEach(([product,p])=>{
+          rows.push([
+            "   ↳ "+product,
+            p.t,
+            p.s,
+            p.f,
+            (p.t?p.f/p.t*100:0).toFixed(2)+"%",
+            "₹"+Number(p.p||0).toLocaleString()
+          ]);
+        });
+    });
+
+  doc.autoTable({
+    startY:24,
+    head:[["IC / Company","Total","Success","Failure","Failure %","Premium"]],
+    body:rows,
+    styles:{fontSize:9,cellPadding:3},
+    headStyles:{fontSize:9},
+    didParseCell:function(data){
+      if(data.section==="body" && String(data.row.raw[0]||"").trim().startsWith("↳")){
+        data.cell.styles.fontSize=8;
+      }
+    }
+  });
+
+  doc.save("Policy_MIS_IC_Product_Summary.pdf");
 }
 function downloadMissingPDF(type){
  const data=currentMissing.filter(r=>(!type||r.Type===type)&&(!document.getElementById("missingIcFilter").value||r.IC===document.getElementById("missingIcFilter").value));
