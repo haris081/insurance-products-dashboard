@@ -25,10 +25,10 @@
 #pdfRenameModal{display:none;position:fixed;inset:0;background:rgba(15,27,24,.42);z-index:9999;align-items:center;justify-content:center;padding:20px}.pdf-modal-card{width:min(650px,100%);background:#fff;border-radius:18px;padding:23px;box-shadow:0 30px 100px rgba(0,0,0,.2);border:1px solid var(--line)}.pdf-drop{display:block;border:1.5px dashed #8bcfc1;border-radius:14px;padding:26px;text-align:center;background:#f7fbfa;cursor:pointer}.pdf-drop input{display:none}.pdf-drop strong{display:block;color:#176b62}.pdf-drop span{font-size:11px;color:var(--muted)}
 @media(max-width:900px){.grid2{grid-template-columns:1fr}.kpis{grid-template-columns:repeat(2,1fr)}.hero{align-items:flex-start;flex-direction:column}}@media(max-width:600px){.topbar{align-items:flex-start;flex-direction:column}.actions{width:100%}.btnx{flex:1}.shell{padding:20px 12px 40px}.kpis{grid-template-columns:1fr}.integration-kpi-grid{grid-template-columns:1fr}.hero h1{letter-spacing:-2px}}
 </style><style id="final-responsive-fixes">
-.kpis{grid-template-columns:repeat(4,minmax(210px,1fr))}
+.kpis{grid-template-columns:repeat(4,minmax(0,1fr))}
 .kpi{min-width:0;overflow:hidden}.kpi h3{white-space:nowrap;word-break:keep-all;font-variant-numeric:tabular-nums}
-@media(max-width:1100px){.kpis{grid-template-columns:repeat(2,minmax(210px,1fr))}}
-@media(max-width:560px){.kpis{grid-template-columns:1fr}.kpi h3{font-size:25px}}
+@media(max-width:1100px){.kpis{grid-template-columns:repeat(2,minmax(0,1fr))}}
+@media(max-width:560px){.kpis{grid-template-columns:1fr}.kpi h3{font-size:25px}.data-head{align-items:flex-start}.controls{width:100%;flex-wrap:wrap}.controls select,.controls .btnx{flex:1;min-width:120px}.table{font-size:11px}.table td,.table th{padding:8px}}
 </style>
 </head><body>
 <header class="topbar"><div class="brand"><div class="logo">P</div><div><b>Policy MIS</b><small>Operations Intelligence Hub</small></div></div>
@@ -361,63 +361,79 @@ function downloadSummaryPDF(){
  doc.save("Policy_MIS_Summary.pdf");
 }
 function downloadCompanyPDF(){
-  const {jsPDF}=window.jspdf,doc=new jsPDF({orientation:"landscape"});
-  doc.setFontSize(18);
-  doc.text("Policy MIS Dashboard - IC & Product Summary",14,16);
-
-  const rows=[];
-  Object.entries(companyData)
-    .sort((a,b)=>b[1].t-a[1].t)
-    .forEach(([ic,v])=>{
-      const icRows=currentRows.filter(r=>r.company_name===ic);
-      const products={};
-
-      icRows.forEach(r=>{
-        const product=String(r.section||"Unknown").trim();
-        if(!products[product]) products[product]={t:0,s:0,f:0,p:0};
-        products[product].t++;
-        if(r.isSuccess) products[product].s++;
-        else products[product].f++;
-        products[product].p+=Number(r.transaction_amount||0);
-      });
-
-      rows.push([
-        ic,
-        v.t,
-        v.s,
-        v.f,
-        (v.t?v.f/v.t*100:0).toFixed(2)+"%",
-        "₹"+Number(v.p||0).toLocaleString()
-      ]);
-
-      Object.entries(products)
-        .sort((a,b)=>b[1].t-a[1].t)
-        .forEach(([product,p])=>{
-          rows.push([
-            "   ↳ "+product,
-            p.t,
-            p.s,
-            p.f,
-            (p.t?p.f/p.t*100:0).toFixed(2)+"%",
-            "₹"+Number(p.p||0).toLocaleString()
-          ]);
-        });
-    });
-
-  doc.autoTable({
-    startY:24,
-    head:[["IC / Company","Total","Success","Failure","Failure %","Premium"]],
-    body:rows,
-    styles:{fontSize:9,cellPadding:3},
-    headStyles:{fontSize:9},
-    didParseCell:function(data){
-      if(data.section==="body" && String(data.row.raw[0]||"").trim().startsWith("↳")){
-        data.cell.styles.fontSize=8;
-      }
-    }
+ const {jsPDF}=window.jspdf,doc=new jsPDF({orientation:"portrait",unit:"mm",format:"a4"});
+ const W=210,H=297,M=14,teal=[8,127,120],dark=[20,34,31],muted=[113,129,125],light=[241,247,245],green=[223,245,235],amber=[255,241,199],red=[253,225,230];
+ const allowed=[
+  "Aditya Birla Health Insurance CoLtd","Niva Bupa Health Insurance Co Ltd",
+  "Star Health Allied Insurance CoLtd","Royal Sundaram General Insurance Co Limited",
+  "IndusInd General Insurance","Bajaj General Insurance Limited",
+  "TATA AIG General Insurance","The New India Assurance Company Limited"
+ ];
+ const rows=currentRows.filter(r=>allowed.includes(String(r.company_name||"").trim()));
+ const sums=allowed.map(ic=>{
+  const rs=rows.filter(r=>String(r.company_name||"").trim()===ic);
+  if(!rs.length)return null;
+  const products={};
+  rs.forEach(r=>{const p=String(r.section||"Unknown").trim()||"Unknown";
+   if(!products[p])products[p]={t:0,s:0,f:0,p:0,type:r.integration||"Not Sure"};
+   products[p].t++;if(r.isSuccess)products[p].s++;else products[p].f++;
+   products[p].p+=Number(r.transaction_amount||0);
   });
+  return {ic,rs,total:rs.length,success:rs.filter(r=>r.isSuccess).length,
+   failure:rs.filter(r=>!r.isSuccess).length,premium:rs.reduce((a,r)=>a+Number(r.transaction_amount||0),0),products};
+ }).filter(Boolean);
 
-  doc.save("Policy_MIS_IC_Product_Summary.pdf");
+ const total=sums.reduce((a,x)=>a+x.total,0),success=sums.reduce((a,x)=>a+x.success,0),failure=total-success;
+ const premium=sums.reduce((a,x)=>a+x.premium,0);
+ const money=n=>"INR "+Number(n||0).toLocaleString("en-IN"), pct=n=>Number(n||0).toFixed(2)+"%";
+ const txt=s=>String(s??"").replace(/[^\x00-\x7F]/g,"");
+
+ doc.setFillColor(...teal);doc.rect(0,0,W,9,"F");
+ doc.setTextColor(...dark);doc.setFont("helvetica","bold");doc.setFontSize(22);doc.text("Policy MIS",M,25);
+ doc.setTextColor(...teal);doc.setFontSize(12);doc.text("IC & Product Performance Report",M,32);
+ doc.setTextColor(...muted);doc.setFont("helvetica","normal");doc.setFontSize(8);
+ doc.text("Executive view • 8 configured ICs • Product-level detail",M,38);
+
+ const kpis=[["TOTAL POLICIES",total.toLocaleString("en-IN"),light],["SUCCESS",success.toLocaleString("en-IN"),green],
+ ["FAILURE",failure.toLocaleString("en-IN"),failure?red:green],["SUCCESS RATE",pct(total?success/total*100:0),success===total?green:amber]];
+ const gap=4,cw=(W-2*M-gap*3)/4,cy=45;
+ kpis.forEach((c,i)=>{const x=M+i*(cw+gap);doc.setFillColor(...c[2]);doc.roundedRect(x,cy,cw,25,3,3,"F");
+  doc.setTextColor(...muted);doc.setFont("helvetica","bold");doc.setFontSize(6.5);doc.text(c[0],x+5,cy+8);
+  doc.setTextColor(...dark);doc.setFontSize(13);doc.text(c[1],x+5,cy+19);});
+ doc.setTextColor(...dark);doc.setFontSize(12);doc.setFont("helvetica","bold");doc.text("IC performance overview",M,82);
+
+ doc.autoTable({startY:87,margin:{left:M,right:M},head:[["IC / Company","Total","Success","Failure","Failure %","Premium"]],
+  body:sums.map(x=>[txt(x.ic),x.total,x.success,x.failure,pct(x.total?x.failure/x.total*100:0),money(x.premium)]),
+  theme:"grid",styles:{font:"helvetica",fontSize:7.4,cellPadding:3.2,textColor:dark,lineColor:[220,231,227],lineWidth:.2},
+  headStyles:{fillColor:teal,textColor:[255,255,255],fontStyle:"bold",fontSize:7.2},
+  alternateRowStyles:{fillColor:[248,251,250]},
+  columnStyles:{0:{cellWidth:65},1:{halign:"right"},2:{halign:"right"},3:{halign:"right"},4:{halign:"right"},5:{halign:"right",cellWidth:31}},
+  didParseCell:d=>{if(d.section==="body"&&d.column.index===4){const n=parseFloat(d.cell.raw);d.cell.styles.fillColor=n===0?green:(n<=1?amber:red);d.cell.styles.fontStyle="bold";}}
+ });
+
+ let y=(doc.lastAutoTable?.finalY||145)+12;
+ sums.forEach(x=>{
+  const ps=Object.entries(x.products).sort((a,b)=>b[1].t-a[1].t);
+  if(y+28+ps.length*8>H-18){doc.addPage();y=18;}
+  doc.setFillColor(...teal);doc.roundedRect(M,y,W-2*M,16,3,3,"F");
+  doc.setTextColor(255,255,255);doc.setFont("helvetica","bold");doc.setFontSize(10.5);doc.text(txt(x.ic),M+5,y+6.7);
+  doc.setFont("helvetica","normal");doc.setFontSize(7.2);
+  doc.text("Total "+x.total+"  •  Success "+x.success+"  •  Failure "+x.failure+"  •  Premium "+money(x.premium),M+5,y+12);
+  y+=20;
+  doc.autoTable({startY:y,margin:{left:M,right:M},head:[["Product","Integration","Total","Success","Failure","Failure %","Premium"]],
+   body:ps.map(([p,v])=>[txt(p),txt(v.type),v.t,v.s,v.f,pct(v.t?v.f/v.t*100:0),money(v.p)]),
+   theme:"grid",styles:{font:"helvetica",fontSize:7.1,cellPadding:2.7,textColor:dark,lineColor:[220,231,227],lineWidth:.2},
+   headStyles:{fillColor:light,textColor:dark,fontStyle:"bold",fontSize:6.9},alternateRowStyles:{fillColor:[250,252,251]},
+   columnStyles:{0:{cellWidth:47},1:{cellWidth:24},2:{halign:"right"},3:{halign:"right"},4:{halign:"right"},5:{halign:"right"},6:{halign:"right",cellWidth:29}},
+   didParseCell:d=>{if(d.section==="body"&&d.column.index===5){const n=parseFloat(d.cell.raw);d.cell.styles.fillColor=n===0?green:(n<=1?amber:red);d.cell.styles.fontStyle="bold";}}
+  });
+  y=(doc.lastAutoTable?.finalY||y)+9;
+ });
+ const pages=doc.getNumberOfPages();
+ for(let p=1;p<=pages;p++){doc.setPage(p);doc.setDrawColor(220,231,227);doc.line(M,H-12,W-M,H-12);
+  doc.setFont("helvetica","normal");doc.setFontSize(6.5);doc.setTextColor(...muted);
+  doc.text("Policy MIS • IC & Product Summary",M,H-7);doc.text("Page "+p+" of "+pages,W-M,H-7,{align:"right"});}
+ doc.save("Policy_MIS_IC_Product_Enhanced.pdf");
 }
 function downloadMissingPDF(type){
  const data=currentMissing.filter(r=>(!type||r.Type===type)&&(!document.getElementById("missingIcFilter").value||r.IC===document.getElementById("missingIcFilter").value));
