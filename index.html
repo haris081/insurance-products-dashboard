@@ -276,7 +276,7 @@ function process(rows){
 }
 function renderIntegrationCards(rows){
  const box=document.getElementById("integrationCards");if(!box)return;box.className="integration-kpi-grid";
- const apiLoader=rows.filter(r=>r.integration==="API"||r.integration==="Loader"),otherLob=rows.filter(r=>r.integration==="Not Sure");
+ const apiLoader=rows.filter(r=>r.integration==="API"||r.integration==="Loader"),otherLob=rows.filter(r=>r.integration!=="API"&&r.integration!=="Loader");
  const cards=[{label:"API",key:"API",badge:"badge-api"},{label:"Loader",key:"Loader",badge:"badge-loader"},{label:"Affinity Total Policy",rows:apiLoader,badge:"badge-api"},{label:"Other LOB product",rows:otherLob,badge:"badge-unknown"}];
  box.innerHTML=cards.map(card=>{
   const all=card.rows||rows.filter(r=>r.integration===card.key),fail=all.filter(r=>!r.isSuccess),rate=all.length?fail.length/all.length*100:0;
@@ -363,21 +363,16 @@ function downloadSummaryPDF(){
 function downloadCompanyPDF(exportType="all"){
  const {jsPDF}=window.jspdf,doc=new jsPDF({orientation:"portrait",unit:"mm",format:"a4"});
  const W=210,H=297,M=14,teal=[8,127,120],dark=[20,34,31],muted=[113,129,125],light=[241,247,245],green=[223,245,235],amber=[255,241,199],red=[253,225,230];
- const allowed=[
-  "Aditya Birla Health Insurance CoLtd","Niva Bupa Health Insurance Co Ltd",
-  "Star Health Allied Insurance CoLtd","Royal Sundaram General Insurance Co Limited",
-  "IndusInd General Insurance","Bajaj General Insurance Limited",
-  "TATA AIG General Insurance","The New India Assurance Company Limited"
- ];
  const affinityRows=currentRows.filter(r=>r.integration==="API"||r.integration==="Loader");
  const sourceRows=exportType==="affinity"?affinityRows:exportType==="other"?currentRows.filter(r=>r.integration!=="API"&&r.integration!=="Loader"):currentRows;
- const rows=sourceRows.filter(r=>allowed.includes(String(r.company_name||"").trim()));
- const sums=allowed.map(ic=>{
+ const rows=sourceRows;
+ const ics=[...new Set(rows.map(r=>String(r.company_name||"Unknown").trim()||"Unknown"))].sort((a,b)=>a.localeCompare(b));
+ const sums=ics.map(ic=>{
   const rs=rows.filter(r=>String(r.company_name||"").trim()===ic);
   if(!rs.length)return null;
   const products={};
   rs.forEach(r=>{const p=String(r.section||"Unknown").trim()||"Unknown";
-   if(!products[p])products[p]={t:0,s:0,f:0,p:0,type:r.integration||"Not Sure"};
+   if(!products[p])products[p]={t:0,s:0,f:0,p:0,type:exportType==="other"?"Other LOB":(r.integration||"Not Sure")};
    products[p].t++;if(r.isSuccess)products[p].s++;else products[p].f++;
    products[p].p+=Number(r.transaction_amount||0);
   });
