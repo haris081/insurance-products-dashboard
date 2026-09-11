@@ -25,7 +25,7 @@
 #pdfRenameModal{display:none;position:fixed;inset:0;background:rgba(15,27,24,.42);z-index:9999;align-items:center;justify-content:center;padding:20px}.pdf-modal-card{width:min(650px,100%);background:#fff;border-radius:18px;padding:23px;box-shadow:0 30px 100px rgba(0,0,0,.2);border:1px solid var(--line)}.pdf-drop{display:block;border:1.5px dashed #8bcfc1;border-radius:14px;padding:26px;text-align:center;background:#f7fbfa;cursor:pointer}.pdf-drop input{display:none}.pdf-drop strong{display:block;color:#176b62}.pdf-drop span{font-size:11px;color:var(--muted)}
 @media(max-width:900px){.grid2{grid-template-columns:1fr}.kpis{grid-template-columns:repeat(2,1fr)}.hero{align-items:flex-start;flex-direction:column}}@media(max-width:600px){.topbar{align-items:flex-start;flex-direction:column}.actions{width:100%}.btnx{flex:1}.shell{padding:20px 12px 40px}.kpis{grid-template-columns:1fr}.integration-kpi-grid{grid-template-columns:1fr}.hero h1{letter-spacing:-2px}}
 </style><style id="final-responsive-fixes">
-.kpis{grid-template-columns:repeat(4,minmax(0,1fr))}
+.kpis{grid-template-columns:repeat(4,minmax(0,1fr))}.kpis>.col-md-3{width:auto;max-width:none;min-width:0;padding-left:0;padding-right:0}.kpi{width:100%;min-width:0}.kpi h3{overflow:hidden;text-overflow:ellipsis}
 .kpi{min-width:0;overflow:hidden}.kpi h3{white-space:nowrap;word-break:keep-all;font-variant-numeric:tabular-nums}
 @media(max-width:1100px){.kpis{grid-template-columns:repeat(2,minmax(0,1fr))}}
 @media(max-width:560px){.kpis{grid-template-columns:1fr}.kpi h3{font-size:25px}.data-head{align-items:flex-start}.controls{width:100%;flex-wrap:wrap}.controls select,.controls .btnx{flex:1;min-width:120px}.table{font-size:11px}.table td,.table th{padding:8px}}
@@ -42,7 +42,7 @@
 <section class="hero"><div><div class="eyebrow">CONTROL CENTER / POLICY OPERATIONS</div><h1>Policy performance.<br><span>Clear at a glance.</span></h1><p>Upload MIS  →  Inspect policy outcomes  →  Trace integration health  →  Drill into companies and circles  →  Isolate missing policies  →  Close the gaps.</p></div><div class="status"><b id="workspaceStatus">Workspace ready</b><small id="workspaceHint">Upload a policy MIS file to populate the dashboard.</small></div></section>
 <section class="section"><div class="section-title"><h2>Executive signals</h2><small>Live from uploaded MIS</small></div><div id="cards" class="kpis"></div></section>
 <section class="section grid2"><article class="panel"><div class="data-head"><div><h3>Company distribution</h3><p>Portfolio volume by insurance company.</p></div><button class="btnx" onclick="downloadCompanyPDF()">↓ Download</button></div><div class="chart"><canvas id="companyChart"></canvas></div></article><article class="panel"><div><h3>Integration pulse</h3><p>Failure percentage by integration path.</p></div><div id="integrationCards" class="integration-kpi-grid"></div></article></section>
-<section class="panel data"><div class="data-head"><div><h3>Company / IC intelligence</h3><p>Click a company for product-level movement.</p></div><div class="controls"><select id="companyView"><option>Table</option><option>Donut</option></select><button class="btnx" onclick="downloadCompanyPDF()">Export IC PDF</button></div></div><div id="companyTable" class="host"></div><div id="companyChartWrap" style="display:none"><canvas id="companyChart2"></canvas></div><div id="productSummary" class="drill-host"></div></section>
+<section class="panel data"><div class="data-head"><div><h3>Company / IC intelligence</h3><p>Click a company for product-level movement.</p></div><div class="controls"><select id="companyView"><option>Table</option><option>Donut</option></select><select id="icPdfExport" aria-label="Export IC PDF"><option value="all">Export All IC PDF</option><option value="affinity">Export Affinity IC PDF</option><option value="other">Export Other LOB IC PDF</option></select></div></div><div id="companyTable" class="host"></div><div id="companyChartWrap" style="display:none"><canvas id="companyChart2"></canvas></div><div id="productSummary" class="drill-host"></div></section>
 <section class="panel data"><div class="data-head"><div><h3>Circle intelligence</h3><p>Regional performance with branch-level drilldown.</p></div><div class="controls"><select id="circleView"><option>Table</option><option>Donut</option></select></div></div><div id="circleTable" class="host"></div><div id="circleChartWrap" style="display:none"><canvas id="circleChart2"></canvas></div></section>
 <section class="missing"><div class="missing-head"><div><h3>Missing policies</h3><p>Filter, inspect and export unresolved policies.</p></div><div class="missing-counter"><span id="missingTotal">0</span><small>OPEN EXCEPTIONS</small></div></div><div class="filter-deck"><b style="font-size:9px;letter-spacing:1px;color:#718096">FILTER</b><select id="missingIcFilter"><option value="">All ICs</option></select><select id="missingTypeFilter"><option value="">All Types</option><option value="API">API</option><option value="Loader">Loader</option><option value="Other LOB">Other LOB</option><option value="Not Sure">Not Sure</option></select><button class="btnx primary" onclick="downloadMissing()">Download CSV ↓</button></div><div class="export-rail"><button onclick="downloadMissing('API')">API Missing</button><button onclick="downloadMissing('Loader')">Loader Missing</button><button onclick="downloadMissing('Other LOB')">Other LOB</button><button onclick="downloadMissing('Not Sure')">Not Sure</button><button onclick="downloadMissing()">All Missing</button></div><div id="mappingNotice" class="alert alert-warning mt-3 d-none"></div><div id="missingTable" class="host"></div></section>
 </main>
@@ -360,7 +360,7 @@ function downloadSummaryPDF(){
  doc.autoTable({startY:24,head:[["Metric","Value"]],body:[["Total Policies",total],["Success",success],["Failure",failure],["Premium","₹"+premium.toLocaleString()]]});
  doc.save("Policy_MIS_Summary.pdf");
 }
-function downloadCompanyPDF(){
+function downloadCompanyPDF(exportType="all"){
  const {jsPDF}=window.jspdf,doc=new jsPDF({orientation:"portrait",unit:"mm",format:"a4"});
  const W=210,H=297,M=14,teal=[8,127,120],dark=[20,34,31],muted=[113,129,125],light=[241,247,245],green=[223,245,235],amber=[255,241,199],red=[253,225,230];
  const allowed=[
@@ -369,7 +369,9 @@ function downloadCompanyPDF(){
   "IndusInd General Insurance","Bajaj General Insurance Limited",
   "TATA AIG General Insurance","The New India Assurance Company Limited"
  ];
- const rows=currentRows.filter(r=>allowed.includes(String(r.company_name||"").trim()));
+ const affinityRows=currentRows.filter(r=>r.integration==="API"||r.integration==="Loader");
+ const sourceRows=exportType==="affinity"?affinityRows:exportType==="other"?currentRows.filter(r=>r.integration!=="API"&&r.integration!=="Loader"):currentRows;
+ const rows=sourceRows.filter(r=>allowed.includes(String(r.company_name||"").trim()));
  const sums=allowed.map(ic=>{
   const rs=rows.filter(r=>String(r.company_name||"").trim()===ic);
   if(!rs.length)return null;
@@ -390,7 +392,8 @@ function downloadCompanyPDF(){
 
  doc.setFillColor(...teal);doc.rect(0,0,W,9,"F");
  doc.setTextColor(...dark);doc.setFont("helvetica","bold");doc.setFontSize(22);doc.text("Policy MIS",M,25);
- doc.setTextColor(...teal);doc.setFontSize(12);doc.text("IC & Product Performance Report",M,32);
+ doc.setTextColor(...teal);doc.setFontSize(12);doc.text(
+   exportType==="affinity"?"Affinity IC & Product Performance Report":exportType==="other"?"Other LOB IC & Product Performance Report":"IC & Product Performance Report",M,32);
  doc.setTextColor(...muted);doc.setFont("helvetica","normal");doc.setFontSize(8);
  doc.text("Executive view • 8 configured ICs • Product-level detail",M,38);
 
@@ -433,7 +436,7 @@ function downloadCompanyPDF(){
  for(let p=1;p<=pages;p++){doc.setPage(p);doc.setDrawColor(220,231,227);doc.line(M,H-12,W-M,H-12);
   doc.setFont("helvetica","normal");doc.setFontSize(6.5);doc.setTextColor(...muted);
   doc.text("Policy MIS • IC & Product Summary",M,H-7);doc.text("Page "+p+" of "+pages,W-M,H-7,{align:"right"});}
- doc.save("Affinity Policy Report.pdf");
+ doc.save(exportType==="affinity"?"Policy_MIS_Affinity_IC_Product.pdf":exportType==="other"?"Policy_MIS_Other_LOB_IC_Product.pdf":"Policy_MIS_IC_Product_Enhanced.pdf");
 }
 function downloadMissingPDF(type){
  const data=currentMissing.filter(r=>(!type||r.Type===type)&&(!document.getElementById("missingIcFilter").value||r.IC===document.getElementById("missingIcFilter").value));
@@ -443,6 +446,11 @@ function downloadMissingPDF(type){
  doc.autoTable({startY:24,head:[["IC / Company","Product","Type","Policy No.","Trace ID","Premium"]],body:data.map(r=>[r.IC,r.Product,r.Type,r.PolicyNo,r.TraceID,"₹"+Number(r.Premium||0).toLocaleString()])});
  doc.save((type||"All")+"_Missing_Policies.pdf");
 }
+document.getElementById("icPdfExport").addEventListener("change",function(){
+ const type=this.value||"all";
+ downloadCompanyPDF(type);
+ this.value="all";
+});
 document.getElementById("companyView").addEventListener("change",function(){
  const table=document.getElementById("companyTable"),wrap=document.getElementById("companyChartWrap");
  if(this.value==="Donut"){table.style.display="none";wrap.style.display="block";if(companyChart2)companyChart2.destroy();const labels=Object.keys(companyData);companyChart2=new Chart(document.getElementById("companyChart2"),{type:"doughnut",data:{labels,datasets:[{data:labels.map(x=>companyData[x].t),backgroundColor:CHART_COLORS}]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{position:"right"}}}})}else{table.style.display="block";wrap.style.display="none"}
